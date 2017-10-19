@@ -21,6 +21,8 @@
         <commons-lang>2.5</commons-lang>
         <freemarker>2.3.20</freemarker>
         <aspectj.version>1.8.9</aspectj.version>
+        <spring.mongo>2.0.0.RELEASE</spring.mongo>
+        <mongo.driver>3.4.1</mongo.driver>
 	</properties>
 	
 	<dependencies>
@@ -167,6 +169,19 @@
 			<version>${aspectj.version}</version>
 		</dependency>
         <!-- aspecj aop相关 end -->
+        
+        <!-- mongodb 相关 start -->
+        <dependency>
+    		<groupId>org.springframework.data</groupId>
+    		<artifactId>spring-data-mongodb</artifactId>
+    		<version>${spring.mongo}</version>
+		</dependency>
+		<dependency>
+    		<groupId>org.mongodb</groupId>
+    		<artifactId>mongo-java-driver</artifactId>
+    		<version>${mongo.driver}</version>
+		</dependency>
+        <!-- mongodb 相关 end -->
 	</dependencies>
 	
 	<build>

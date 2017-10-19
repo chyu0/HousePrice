@@ -9,7 +9,6 @@ public class IndexController extends BaseController{
 	
 	@RequestMapping("/index")
 	public String index(Model model) {
-		System.out.println(2/0);
 		return "index";
 	}
 	
