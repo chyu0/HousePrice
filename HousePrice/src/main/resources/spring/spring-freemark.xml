@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd  
+       http://www.springframework.org/schema/mvc 
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd 
+       http://www.springframework.org/schema/util 
+       http://www.springframework.org/schema/util/spring-util.xsd 
+       http://www.springframework.org/schema/context 
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/aop   
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+    
+    <!-- 必须添加freemarkerConfig的配置，否则不能识别 -->  
+    <bean id="freemarkerConfig"  class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">    
+    <property name="templateLoaderPath" value="/" />    
+    <property name="freemarkerSettings">    
+        <props>    
+            <prop key="default_encoding">UTF-8</prop> <!-- 默认编码方式 -->  
+            <prop key="classic_compatible">true</prop><!-- 此属性可以防止模板解析空值时的错误 -->  
+        </props>    
+    </property>    
+    </bean>    
+    
+    <!-- 扫描freemarker下静态类 -->
+    <bean id="freemarkerMap" class="com.mxt.price.freemarker.FreemarkerMap" factory-method="getInstance">
+    	<property name="locations">
+    		<list>
+    			<value>com.mxt.price.utils</value>
+    		</list>
+    	</property>
+    </bean>
+    
+    <!-- 要求视图使用FreeMarker模板，指定controller层返回的页面在webapp目录下进行访问，且为html页面-->  
+    <bean class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">  
+        <property name="prefix">  
+            <value>/ftl/</value>  
+        </property>  
+        <property name="suffix">  
+            <value>.ftl</value>
+        </property>  
+        <!-- 此处需要声明为utf-8编码，否则即使页面是utf-8编码，中文还是不能正常显示 -->  
+        <property name="contentType" value="text/html;charset=UTF-8"></property> 
+        <property name="attributesMap" ref="freemarkerMap"/>   
+    </bean>
+</beans>

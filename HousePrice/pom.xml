@@ -1,0 +1,195 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.mxt.price</groupId>
+	<artifactId>HousePrice</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
+
+	<properties>
+		<java.version>1.7</java.version>
+		<java.encoding>UTF-8</java.encoding>
+		<plugin.version>2.5</plugin.version>
+		<project.bulid.sourceEncoding>UTF-8</project.bulid.sourceEncoding>
+		<ch.qos.logback>1.1.8</ch.qos.logback>
+		<ch.logback-extensions>0.1.1</ch.logback-extensions>
+		<spring.version>4.2.4.RELEASE</spring.version>
+		<com.alibaba.fastjson>1.2.28</com.alibaba.fastjson>
+		<servlet.api.version>2.5</servlet.api.version>
+        <jsp.api.version>2.0</jsp.api.version>
+        <org.javassist>3.18.2-GA</org.javassist>
+        <commons-lang>2.5</commons-lang>
+        <freemarker>2.3.20</freemarker>
+        <aspectj.version>1.8.9</aspectj.version>
+	</properties>
+	
+	<dependencies>
+		<!-- logback相关  start-->
+		<dependency>  
+          	<groupId>ch.qos.logback</groupId>  
+          	<artifactId>logback-core</artifactId>  
+          	<version>${ch.qos.logback}</version>  
+        </dependency>  
+        <dependency>  
+          	<groupId>ch.qos.logback</groupId>  
+         	<artifactId>logback-classic</artifactId>  
+          	<version>${ch.qos.logback}</version>  
+        </dependency>  
+        <dependency>  
+          	<groupId>ch.qos.logback</groupId>  
+          	<artifactId>logback-access</artifactId>  
+          	<version>${ch.qos.logback}</version>  
+        </dependency>  
+
+		<dependency>  
+    		<groupId>org.logback-extensions</groupId>  
+    		<artifactId>logback-ext-spring</artifactId>  
+    		<version>${ch.logback-extensions}</version>  
+		</dependency> 
+		<!-- logback相关  end-->
+		
+		
+		<!-- spring相关  start -->
+		<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <!-- spring相关  end-->
+        
+        <!-- alibaba fastjson start -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${com.alibaba.fastjson}</version>
+        </dependency>
+        <!-- alibaba fastjson end -->
+        
+        
+        <!--servlet编译打包使用  start-->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>${servlet.api.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>${jsp.api.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!--servlet编译打包使用  end-->
+
+        <!--Java字节码的类库 start-->
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>${org.javassist}</version>
+        </dependency>
+        <!--Java字节码的类库 end-->
+
+        <!--公共工具包 start-->
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>${commons-lang}</version>
+        </dependency>
+        <!--公共工具包 end-->
+        
+        <!-- freemarker start -->
+        <dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+			<version>${freemarker}</version>
+		</dependency>
+        <!-- freemarker end -->
+        
+        <!-- aspecj aop相关 start -->
+        <dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>${aspectj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${aspectj.version}</version>
+		</dependency>
+        <!-- aspecj aop相关 end -->
+	</dependencies>
+	
+	<build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${plugin.version}</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${plugin.version}</version>
+                <configuration>
+                    <encoding>${java.encoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
