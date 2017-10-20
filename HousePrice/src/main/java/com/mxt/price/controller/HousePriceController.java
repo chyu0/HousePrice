@@ -32,4 +32,11 @@ public class HousePriceController extends BaseController {
 	public List<HousePrice2> findHousePrice(Model model) {
 		return housePriceMongoService.findHousePrice();
 	}
+	
+	@RequestMapping("/readExcel")
+	@ResponseBody
+	public Map<String,Object> readExcel(Model model) {
+		
+		return this.successResult();
+	}
 }

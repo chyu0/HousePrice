@@ -177,19 +177,30 @@
 			<artifactId>spring-data-commons</artifactId>
 			<version>${spring.commons}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-mongodb</artifactId>
 			<version>${spring.mongo}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>
 			<version>${mongo.driver}</version>
 		</dependency>
 		<!-- mongodb 相关 end -->
+		
+		<!-- poi excel导入导出  start-->
+		<dependency>
+    		<groupId>org.apache.poi</groupId>
+    		<artifactId>poi</artifactId>
+    		<version>3.15</version>
+		</dependency>
+		<dependency>
+    		<groupId>org.apache.poi</groupId>
+    		<artifactId>poi-ooxml</artifactId>
+    		<version>3.15</version>
+		</dependency>
+		<!-- poi excel导入导出  end -->
 	</dependencies>
 
 	<build>
