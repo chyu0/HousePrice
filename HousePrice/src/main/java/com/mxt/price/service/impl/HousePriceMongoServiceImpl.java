@@ -72,10 +72,10 @@ public class HousePriceMongoServiceImpl implements HousePriceMongoService {
 
 	@Override
 	public List<HousePrice2> findHousePrice() {
-		//查找所有2017-01月份，武汉市的数据
+		//查找所有2017-01或2017-01-04月份，武汉市的数据
 		//db.getCollection('HousePrice2').find({privinces:{$elemMatch:{citys:{$elemMatch:{city:"武汉市"}}}}})
-		Criteria.where("district").is("江夏区");
-		Criteria criteria = Criteria.where("privinces").elemMatch(Criteria.where("citys").elemMatch(Criteria.where("city").is("武汉市"))).and("date").in("2017-01");
+		//Criteria.where("district").is("江夏区");
+		Criteria criteria = Criteria.where("privinces").elemMatch(Criteria.where("citys").elemMatch(Criteria.where("city").is("武汉市"))).and("date").in("2017-01","2017-04");
 		Query query = new Query();
 		query.addCriteria(criteria);
 		List<HousePrice2> housePrices = housePrice2MongoDao.find(query);
