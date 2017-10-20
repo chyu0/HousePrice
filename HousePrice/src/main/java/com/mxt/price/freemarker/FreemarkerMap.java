@@ -29,7 +29,9 @@ import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModelException;
 
 /**
- * FreeMarker扫描类，扫描Freemarker相关包，加载静态类
+ * @author maoxiaotai
+ * @data 2017年10月20日 下午4:43:18
+ * @Description FreeMarker扫描类，扫描Freemarker相关包，加载静态类
  */
 public class FreemarkerMap extends ModelMap implements BeanFactoryPostProcessor{
 	
@@ -139,7 +141,9 @@ public class FreemarkerMap extends ModelMap implements BeanFactoryPostProcessor{
 	            BeansWrapper beansWrapper = BeansWrapper.getDefaultInstance();
 	            TemplateHashModel model = beansWrapper.getStaticModels();
 	            instance.put(clz.getSimpleName(), (TemplateHashModel)model.get(clz.getName()));
-	            logger.info("加载类：" + clz.getName());
+	            if(logger.isDebugEnabled()){
+	            	logger.debug("加载类：" + clz.getName());
+	            }
 	            break;
 	        }
 	    }

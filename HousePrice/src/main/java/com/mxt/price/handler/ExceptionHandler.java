@@ -11,8 +11,8 @@ import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 import com.mxt.price.utils.CommonUtils;
 
 /**
- * @author chenyu23
- * @data 2017年7月20日 下午4:42:46
+ * @author maoxiaotai
+ * @data 2017年10月20日 下午4:42:46
  * @Description 
  * 异常处理器，继承SimpleMappingExceptionResolver类
  * 当捕获异常时会调用doResolveException方法
