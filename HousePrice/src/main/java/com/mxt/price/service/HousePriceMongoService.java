@@ -11,7 +11,20 @@ import com.mxt.price.modal.HousePrice2;
  */
 public interface HousePriceMongoService {
 
+	/**
+	 * 保存数据测试
+	 */
 	public void save();
 	
+	/**
+	 * 保存数据
+	 * @param housePrice2
+	 */
+	public void save(HousePrice2 housePrice2);
+	
+	/**
+	 * 数据查询测试
+	 * @return 房价趋势列表
+	 */
 	public List<HousePrice2> findHousePrice();
 }

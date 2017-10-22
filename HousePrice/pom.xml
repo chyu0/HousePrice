@@ -24,6 +24,7 @@
 		<spring.commons>1.7.2.RELEASE</spring.commons>
 		<spring.mongo>1.4.2.RELEASE</spring.mongo>
 		<mongo.driver>2.10.1</mongo.driver>
+		<poi.version>3.6</poi.version>
 	</properties>
 
 	<dependencies>
@@ -193,12 +194,12 @@
 		<dependency>
     		<groupId>org.apache.poi</groupId>
     		<artifactId>poi</artifactId>
-    		<version>3.15</version>
+    		<version>${poi.version}</version>
 		</dependency>
 		<dependency>
     		<groupId>org.apache.poi</groupId>
     		<artifactId>poi-ooxml</artifactId>
-    		<version>3.15</version>
+    		<version>${poi.version}</version>
 		</dependency>
 		<!-- poi excel导入导出  end -->
 	</dependencies>

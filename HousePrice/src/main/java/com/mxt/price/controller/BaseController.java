@@ -10,6 +10,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+/**
+ * @author maoxiaotai
+ * @data 2017年10月20日 下午4:10:36
+ * @Description BaseController
+ */
 @Controller
 public class BaseController {
 

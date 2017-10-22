@@ -81,7 +81,11 @@ public class HousePriceMongoServiceImpl implements HousePriceMongoService {
 		List<HousePrice2> housePrices = housePrice2MongoDao.find(query);
 		return housePrices;
 	}
-	
-	
+
+	@Override
+	public void save(HousePrice2 housePrice2) {
+		// TODO Auto-generated method stub
+		housePrice2MongoDao.save(housePrice2);
+	}
 
 }

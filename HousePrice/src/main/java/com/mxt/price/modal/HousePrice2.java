@@ -3,6 +3,11 @@ package com.mxt.price.modal;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * @author maoxiaotai
+ * @data 2017年10月22日 下午9:37:31
+ * @Description 房价趋势类
+ */
 public class HousePrice2 implements Serializable {
 
 	private static final long serialVersionUID = 8493299969403414774L;

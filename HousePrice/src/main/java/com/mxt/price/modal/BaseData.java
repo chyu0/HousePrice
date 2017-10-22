@@ -3,6 +3,11 @@ package com.mxt.price.modal;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+/**
+ * @author maoxiaotai
+ * @data 2017年10月22日 下午9:34:04
+ * @Description 基础数据类
+ */
 public class BaseData implements Serializable {
 
 	private static final long serialVersionUID = 4410811910741196927L;
