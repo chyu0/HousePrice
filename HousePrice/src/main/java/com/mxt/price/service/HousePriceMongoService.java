@@ -27,4 +27,9 @@ public interface HousePriceMongoService {
 	 * @return 房价趋势列表
 	 */
 	public List<HousePrice2> findHousePrice();
+	
+	/**
+	 * 
+	 */
+	public List<HousePrice2> findHousePriceByCityAndDate(String city , String startTime , String endTime);
 }

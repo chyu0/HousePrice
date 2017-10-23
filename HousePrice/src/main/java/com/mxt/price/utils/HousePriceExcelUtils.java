@@ -71,7 +71,7 @@ public class HousePriceExcelUtils {
                     continue;
                 }
                 // Read the Row
-                for (int rowNum = 0; rowNum < sheet.getLastRowNum(); rowNum++) {
+                for (int rowNum = 0; rowNum <= sheet.getLastRowNum(); rowNum++) {
                     Row row = sheet.getRow(rowNum);
                     if (row != null) {
                         List<DistrictData> districtLists = new ArrayList<DistrictData>();

@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import com.mxt.price.modal.DistrictData;
 import com.mxt.price.modal.HousePrice2;
 import com.mxt.price.modal.PrivinceData;
 import com.mxt.price.service.HousePriceMongoService;
+import com.mxt.price.utils.DateUtils;
 
 /**
  * HousePriceMongoServiceImpl
@@ -84,8 +86,17 @@ public class HousePriceMongoServiceImpl implements HousePriceMongoService {
 
 	@Override
 	public void save(HousePrice2 housePrice2) {
-		// TODO Auto-generated method stub
 		housePrice2MongoDao.save(housePrice2);
+	}
+
+	@Override
+	public List<HousePrice2> findHousePriceByCityAndDate(String city,
+			String startTime , String endTime) {
+		List<String> timeList = DateUtils.getMonthBetween(startTime, endTime);
+		Criteria criteria = Criteria.where("privinces").elemMatch(Criteria.where("citys").elemMatch(Criteria.where("city").is(city))).and("date").in(timeList.toArray());
+		Query query = new Query();
+		query.addCriteria(criteria);
+		return housePrice2MongoDao.find(query);
 	}
 
 }
