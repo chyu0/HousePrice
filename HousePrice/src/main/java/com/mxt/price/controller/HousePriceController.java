@@ -92,9 +92,9 @@ public class HousePriceController extends BaseController {
 					List<BaseData> list = disMap.get(d.getDistrict());
 					if(list == null){
 						list = new ArrayList<BaseData>();
+						disMap.put(d.getDistrict(), list);
 					}
 					list.add(d.getBaseData());
-					disMap.put(d.getDistrict(), list);
 				}
 			}
 			model.addAttribute("avgPriceList", avgPriceList);
