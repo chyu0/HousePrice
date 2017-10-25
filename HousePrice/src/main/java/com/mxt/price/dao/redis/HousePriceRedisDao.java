@@ -17,8 +17,8 @@ public class HousePriceRedisDao extends RedisGeneratorTemplate<HousePrice2>{
 		super.putCache(key , housePrice);
 	}
 	
-	public Long lPush(String key , HousePrice2 housePriceList){
-		return super.lPush(key , housePriceList);
+	public Long lPush(String key , HousePrice2 housePrice){
+		return super.lPush(key , housePrice);
 	}
 	
 	public HousePrice2 lPop(String key){
