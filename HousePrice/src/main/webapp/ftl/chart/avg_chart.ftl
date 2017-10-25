@@ -6,7 +6,7 @@
     <script type="text/javascript" src='/common/js/echart/echarts.js'></script>
 </head>
 <body>
-    <div id="chart" style="width:1500px;height:1500px;"></div>
+    <div id="chart" style="width:1000px;height:600px;"></div>
 </body>
 <script type="text/javascript">
     <#if avgPriceList?? && avgPriceList?size gt 0>
@@ -19,7 +19,7 @@
     	var dates = "${(dates?substring(0,dates?length - 1))!''}";
     	var options = {
     	    title: {
-    	        text: '${city!''}各区县${startTime!''}至${endTime!''}平均房价分步情况'
+    	        text: '${city!''}${district!''}${startTime!''}至${endTime!''}平均房价分步情况'
     	        //subtext: '纯属虚构'
     	    },
     	    tooltip: {

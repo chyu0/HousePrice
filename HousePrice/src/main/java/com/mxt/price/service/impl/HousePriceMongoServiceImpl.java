@@ -10,8 +10,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
-import com.mxt.price.dao.HousePrice2MongoDao;
-import com.mxt.price.dao.HousePriceMongoDao;
+import com.mxt.price.dao.mongo.HousePrice2MongoDao;
+import com.mxt.price.dao.mongo.HousePriceMongoDao;
 import com.mxt.price.modal.BaseData;
 import com.mxt.price.modal.CityData;
 import com.mxt.price.modal.DistrictData;

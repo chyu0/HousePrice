@@ -1,9 +1,9 @@
-package com.mxt.price.dao;
+package com.mxt.price.dao.mongo;
 
 import org.springframework.stereotype.Component;
 
 import com.mxt.price.modal.HousePrice;
-import com.mxt.price.mongo.MongoDbTemplate;
+import com.mxt.price.template.MongoDbTemplate;
 
 /**
  * HousePriceMongoDao mongodb数据操作

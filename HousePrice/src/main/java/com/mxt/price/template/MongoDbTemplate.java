@@ -1,4 +1,4 @@
-package com.mxt.price.mongo;
+package com.mxt.price.template;
 
 import java.util.List;
 

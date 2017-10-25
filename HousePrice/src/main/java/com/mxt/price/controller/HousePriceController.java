@@ -22,6 +22,7 @@ import com.mxt.price.modal.BaseData;
 import com.mxt.price.modal.DistrictData;
 import com.mxt.price.modal.HousePrice2;
 import com.mxt.price.service.HousePriceMongoService;
+import com.mxt.price.service.HousePriceRedisService;
 import com.mxt.price.utils.CommonUtils;
 import com.mxt.price.utils.HousePriceExcelUtils;
 
@@ -39,17 +40,26 @@ public class HousePriceController extends BaseController {
 	@Resource
 	private HousePriceMongoService housePriceMongoService;
 	
+	@Resource
+	private HousePriceRedisService housePriceRedisService;
+	
 	@RequestMapping("/save")
 	@ResponseBody
 	public Map<String,Object> save(Model model) {
-		housePriceMongoService.save();
+		housePriceRedisService.lpush();
 		return this.successResult();
 	}
 	
 	@RequestMapping("/find")
 	@ResponseBody
-	public List<HousePrice2> findHousePrice(Model model) {
-		return housePriceMongoService.findHousePrice();
+	public HousePrice2 findHousePrice(Model model) {
+		return housePriceRedisService.lpop();
+	}
+	
+	@RequestMapping("/remove")
+	@ResponseBody
+	public Long remove(Model model) {
+		return housePriceRedisService.lRem(3);
 	}
 	
 	@RequestMapping("/readExcel")
@@ -79,7 +89,7 @@ public class HousePriceController extends BaseController {
 	 * @return avg_chart视图
 	 */
 	@RequestMapping("/avgChart")
-	public String getAvgChart(Model model , @ModelAttribute("city")String city ,@ModelAttribute("startTime")String startTime ,@ModelAttribute("endTime")String endTime) {
+	public String getAvgChart(Model model , @ModelAttribute("city")String city ,@ModelAttribute("startTime")String startTime ,@ModelAttribute("endTime")String endTime , @ModelAttribute("district") String district) {
 		try{
 			List<HousePrice2> avgPriceList = housePriceMongoService.findHousePriceByCityAndDate(city, startTime, endTime);
 			List<String> dateList = new ArrayList<String>();
@@ -89,12 +99,14 @@ public class HousePriceController extends BaseController {
 				dateList.add(housePrice.getDate());//日期数据
 				List<DistrictData> dists = housePrice.getPrivinces().get(0).getCitys().get(0).getDistricts();
 				for(DistrictData d : dists){
-					List<BaseData> list = disMap.get(d.getDistrict());
-					if(list == null){
-						list = new ArrayList<BaseData>();
-						disMap.put(d.getDistrict(), list);
+					if(d.getDistrict().equals(district)){
+						List<BaseData> list = disMap.get(d.getDistrict());
+						if(list == null){
+							list = new ArrayList<BaseData>();
+							disMap.put(d.getDistrict(), list);
+						}
+						list.add(d.getBaseData());
 					}
-					list.add(d.getBaseData());
 				}
 			}
 			model.addAttribute("avgPriceList", avgPriceList);
