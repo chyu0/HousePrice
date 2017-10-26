@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisZSetCommands;
@@ -27,7 +26,6 @@ import com.mxt.price.utils.ProtoStuffSerializerUtils;
  */
 public class RedisGeneratorTemplate<T> {
 
-	protected static String CACHENAME;// 缓存名  
 	protected static final int CACHETIME = 60;// 默认缓存时间 60S  
 	protected static final int CACHEHOUR = 60 * 60;// 默认缓存时间 1hr  
 	protected static final int CACHEDAY = 60 * 60 * 24;// 默认缓存时间 1Day  
@@ -45,7 +43,7 @@ public class RedisGeneratorTemplate<T> {
      * @param obj
      * @return 
      */
-    public boolean putCache(String key, T obj) {  
+    protected boolean putCache(String key, T obj) {  
         final byte[] bkey = key.getBytes();  
         final byte[] bvalue = ProtoStuffSerializerUtils.serialize(obj);  
         boolean result = redisTemplate.execute(new RedisCallback<Boolean>() {  
@@ -63,7 +61,7 @@ public class RedisGeneratorTemplate<T> {
      * @param obj
      * @param expireTime
      */
-    public void putCacheWithExpireTime(String key, T obj, final long expireTime) {  
+    protected void putCacheWithExpireTime(String key, T obj, final long expireTime) {  
         final byte[] bkey = key.getBytes();  
         final byte[] bvalue = ProtoStuffSerializerUtils.serialize(obj);  
         redisTemplate.execute(new RedisCallback<Boolean>() {  
@@ -81,7 +79,7 @@ public class RedisGeneratorTemplate<T> {
      * @param targetClass
      * @return
      */
-    public T getCache(final String key) {  
+    protected T getCache(final String key) {  
         byte[] result = redisTemplate.execute(new RedisCallback<byte[]>() {  
             @Override  
             public byte[] doInRedis(RedisConnection connection) throws DataAccessException {  
@@ -100,7 +98,7 @@ public class RedisGeneratorTemplate<T> {
      * @param targetClass
      * @return
      */
-    public List<T> getListCache(String key) {  
+    protected List<T> getListCache(String key) {  
     	final byte[] bkey = key.getBytes();
         byte[] result = redisTemplate.execute(new RedisCallback<byte[]>() {  
             @Override  
@@ -118,7 +116,7 @@ public class RedisGeneratorTemplate<T> {
      * 精确删除key 
      * @param key 
      */  
-    public void deleteCache(String key) {  
+    protected void deleteCache(String key) {  
         redisTemplate.delete(key);  
     }  
   
@@ -126,25 +124,18 @@ public class RedisGeneratorTemplate<T> {
      * 模糊删除key 
      * @param pattern 
      */  
-    public void deleteCacheWithPattern(String pattern) {  
+    protected void deleteCacheWithPattern(String pattern) {  
         Set<String> keys = redisTemplate.keys(pattern);  
         redisTemplate.delete(keys);  
     }  
   
-    /** 
-     * 清空所有缓存 
-     */  
-    public void clearCache() {  
-        deleteCacheWithPattern(RedisGeneratorTemplate.CACHENAME + "|*");  
-    }
-
     /**
      * 从redis列表末尾插入value对象
      * @param key
      * @param value
      * @return 插入对象列表
      */
-	public Long lPush(String key , @SuppressWarnings("unchecked") T... values){
+	protected Long lPush(String key , @SuppressWarnings("unchecked") T... values){
     	return lPush(key ,Arrays.asList(values));
     }
     
@@ -154,7 +145,7 @@ public class RedisGeneratorTemplate<T> {
      * @param values
      * @return 插入对象列表
      */
-	public Long rPush(String key , @SuppressWarnings("unchecked") T... values){
+	protected Long rPush(String key , @SuppressWarnings("unchecked") T... values){
     	return rPush(key , Arrays.asList(values));
     }
 	
@@ -164,7 +155,7 @@ public class RedisGeneratorTemplate<T> {
 	 * @param values
 	 * @return
 	 */
-	public Long lPush(String key , List<T> values){
+	protected Long lPush(String key , List<T> values){
 		if(values == null || values.size() <= 0){
 			return null;
 		}
@@ -187,7 +178,7 @@ public class RedisGeneratorTemplate<T> {
 	 * @param values 带插入数据
 	 * @return
 	 */
-	public Long rPush(String key , List<T> values){
+	protected Long rPush(String key , List<T> values){
 		if(values == null || values.size() <= 0){
 			return null;
 		}
@@ -209,7 +200,7 @@ public class RedisGeneratorTemplate<T> {
      * @param key
      * @return 移除的对象
      */
-    public T lPop(String key){
+    protected T lPop(String key){
     	final byte[] bkey = key.getBytes();  
     	byte[] result = redisTemplate.execute(new RedisCallback<byte[]>() {  
             @Override  
@@ -225,7 +216,7 @@ public class RedisGeneratorTemplate<T> {
      * @param key
      * @return 移除的对象
      */
-    public T rPop(String key){
+    protected T rPop(String key){
     	final byte[] bkey = key.getBytes();  
     	byte[] result = redisTemplate.execute(new RedisCallback<byte[]>() {  
             @Override  
@@ -243,7 +234,7 @@ public class RedisGeneratorTemplate<T> {
      * @param value
      * @return
      */
-    public Long lRem(String key , final long count , T value){
+    protected Long lRem(String key , final long count , T value){
     	final byte[] bkey = key.getBytes();  
     	final byte[] bvalue = ProtoStuffSerializerUtils.serialize(value);  
     	return redisTemplate.execute(new RedisCallback<Long>() {  
@@ -260,7 +251,7 @@ public class RedisGeneratorTemplate<T> {
      * @param start
      * @param end
      */
-    public void lTrim(String key , final long start ,final long end){
+    protected void lTrim(String key , final long start ,final long end){
     	final byte[] bkey = key.getBytes();  
     	redisTemplate.execute(new RedisCallback<Boolean>() {  
             @Override  
@@ -275,7 +266,7 @@ public class RedisGeneratorTemplate<T> {
      * 获取List列表长度
      * @param key
      */
-    public Long lLen(String key){
+    protected Long lLen(String key){
     	final byte[] bkey = key.getBytes();  
     	return redisTemplate.execute(new RedisCallback<Long>() {  
             @Override  
@@ -291,7 +282,7 @@ public class RedisGeneratorTemplate<T> {
      * @param index
      * @param value
      */
-    public void lSet(String key ,final long index, T value){
+    protected void lSet(String key ,final long index, T value){
     	final byte[] bkey = key.getBytes();  
     	final byte[] bvalue = ProtoStuffSerializerUtils.serialize(value);
     	redisTemplate.execute(new RedisCallback<Boolean>() {  
@@ -310,7 +301,7 @@ public class RedisGeneratorTemplate<T> {
      * @param end
      * @return
      */
-    public List<T> lRange(final String key , final long start ,final long end){
+    protected List<T> lRange(final String key , final long start ,final long end){
     	final byte[] bkey = key.getBytes();  
     	List<byte[]> results = redisTemplate.execute(new RedisCallback<List<byte[]>>() {  
             @Override  
@@ -334,7 +325,7 @@ public class RedisGeneratorTemplate<T> {
      * @param index
      * @return
      */
-    public T lIndex(String key , final long index){
+    protected T lIndex(String key , final long index){
     	final byte[] bkey = key.getBytes();  
     	byte[] result = redisTemplate.execute(new RedisCallback<byte[]>() {  
             @Override  
@@ -355,7 +346,7 @@ public class RedisGeneratorTemplate<T> {
      * @param value
      * @return
      */
-    public Boolean zAdd(String key , final double score , T value){
+    protected Boolean zAdd(String key , final double score , T value){
     	final byte[] bkey = key.getBytes();  
     	final byte[] bvalue = ProtoStuffSerializerUtils.serialize(value);
     	return redisTemplate.execute(new RedisCallback<Boolean>() {  
@@ -371,7 +362,7 @@ public class RedisGeneratorTemplate<T> {
      * @param key
      * @return
      */
-    public Long zCard(String key){
+    protected Long zCard(String key){
     	final byte[] bkey = key.getBytes();  
     	return redisTemplate.execute(new RedisCallback<Long>() {  
             @Override  
@@ -386,7 +377,7 @@ public class RedisGeneratorTemplate<T> {
      * @param key
      * @return
      */
-    public Long zRank(String key, T value){
+    protected Long zRank(String key, T value){
     	final byte[] bkey = key.getBytes();  
     	final byte[] bvalue = ProtoStuffSerializerUtils.serialize(value);
     	return redisTemplate.execute(new RedisCallback<Long>() {  
@@ -402,7 +393,7 @@ public class RedisGeneratorTemplate<T> {
      * @param key
      * @return
      */
-    public Long zRevRank(String key, T value){
+    protected Long zRevRank(String key, T value){
     	final byte[] bkey = key.getBytes();  
     	final byte[] bvalue = ProtoStuffSerializerUtils.serialize(value);
     	return redisTemplate.execute(new RedisCallback<Long>() {  
@@ -420,7 +411,7 @@ public class RedisGeneratorTemplate<T> {
      * @param maxScore
      * @return
      */
-    public Long zCount(String key ,final double minScore ,final double maxScore){
+    protected Long zCount(String key ,final double minScore ,final double maxScore){
     	final byte[] bkey = key.getBytes();  
     	return redisTemplate.execute(new RedisCallback<Long>() {  
             @Override  
@@ -437,7 +428,7 @@ public class RedisGeneratorTemplate<T> {
      * @param value
      * @return
      */
-    public Double zIncrBy(String key , final double increment , T value){
+    protected Double zIncrBy(String key , final double increment , T value){
     	final byte[] bkey = key.getBytes();  
     	final byte[] bvalue = ProtoStuffSerializerUtils.serialize(value);
     	return redisTemplate.execute(new RedisCallback<Double>() {  
@@ -454,7 +445,7 @@ public class RedisGeneratorTemplate<T> {
      * @param sets
      * @return
      */
-    public Long zInterStore(String destKey , List<T> sets){
+    protected Long zInterStore(String destKey , List<T> sets){
     	if(sets == null || sets.size() <= 0){
     		return null;
     	}
@@ -479,7 +470,7 @@ public class RedisGeneratorTemplate<T> {
      * @param sets
      * @return
      */
-    public Long zInterStore(String destKey , final RedisZSetCommands.Aggregate aggregate, final int[] weights, List<T> sets){
+    protected Long zInterStore(String destKey , final RedisZSetCommands.Aggregate aggregate, final int[] weights, List<T> sets){
     	if(sets==null || weights.length != sets.size()){
     		return 0L;
     	}
@@ -502,7 +493,7 @@ public class RedisGeneratorTemplate<T> {
      * @param sets
      * @return
      */
-    public Long zInterStore(String destKey , @SuppressWarnings("unchecked") T... sets){
+    protected Long zInterStore(String destKey , @SuppressWarnings("unchecked") T... sets){
     	return zInterStore(destKey, Arrays.asList(sets));
     }
     
@@ -512,7 +503,7 @@ public class RedisGeneratorTemplate<T> {
      * @param sets
      * @return
      */
-    public Long zUnionStore(String destKey , List<T> sets){
+    protected Long zUnionStore(String destKey , List<T> sets){
     	if(sets == null || sets.size() <= 0){
     		return null;
     	}
@@ -535,7 +526,7 @@ public class RedisGeneratorTemplate<T> {
      * @param sets
      * @return
      */
-    public Long zUnionStore(String destKey , @SuppressWarnings("unchecked") T... sets){
+    protected Long zUnionStore(String destKey , @SuppressWarnings("unchecked") T... sets){
     	return zUnionStore(destKey, Arrays.asList(sets));
     }
     
@@ -547,7 +538,7 @@ public class RedisGeneratorTemplate<T> {
      * @param sets
      * @return
      */
-    public Long zUnionStore(String destKey , final RedisZSetCommands.Aggregate aggregate, final int[] weights, List<T> sets){
+    protected Long zUnionStore(String destKey , final RedisZSetCommands.Aggregate aggregate, final int[] weights, List<T> sets){
     	if(sets == null || weights.length != sets.size()){
     		return null;
     	}
@@ -571,7 +562,7 @@ public class RedisGeneratorTemplate<T> {
      * @param end
      * @return
      */
-    public Set<T> zRange(String key , final long start ,final long end){
+    protected List<T> zRange(String key , final long start ,final long end){
     	final byte[] bkey = key.getBytes();  
     	Set<byte[]> sets =  redisTemplate.execute(new RedisCallback<Set<byte[]>>() {  
             @Override  
@@ -582,7 +573,7 @@ public class RedisGeneratorTemplate<T> {
     	if(sets == null || sets.size() <= 0){
     		return null;
     	}
-    	Set<T> newSets = new HashSet<T>();
+    	List<T> newSets = new ArrayList<T>();
     	for(byte[] set : sets){
     		newSets.add(ProtoStuffSerializerUtils.deserialize(set, entityClass));
     	}
@@ -596,7 +587,7 @@ public class RedisGeneratorTemplate<T> {
      * @param end
      * @return
      */
-    public Set<T> zRevRange(String key , final long start ,final long end){
+    protected List<T> zRevRange(String key , final long start ,final long end){
     	final byte[] bkey = key.getBytes();  
     	Set<byte[]> sets =  redisTemplate.execute(new RedisCallback<Set<byte[]>>() {  
             @Override  
@@ -607,7 +598,7 @@ public class RedisGeneratorTemplate<T> {
     	if(sets == null || sets.size() <= 0){
     		return null;
     	}
-    	Set<T> newSets = new HashSet<T>();
+    	List<T> newSets = new ArrayList<T>();
     	for(byte[] set : sets){
     		newSets.add(ProtoStuffSerializerUtils.deserialize(set, entityClass));
     	}
@@ -621,7 +612,7 @@ public class RedisGeneratorTemplate<T> {
      * @param maxScore
      * @return
      */
-    public Set<T> zRangeByScore(String key , final double minScore ,final double maxScore){
+    protected List<T> zRangeByScore(String key , final double minScore ,final double maxScore){
     	final byte[] bkey = key.getBytes();  
     	Set<byte[]> sets =  redisTemplate.execute(new RedisCallback<Set<byte[]>>() {  
             @Override  
@@ -632,7 +623,7 @@ public class RedisGeneratorTemplate<T> {
     	if(sets == null || sets.size() <= 0){
     		return null;
     	}
-    	Set<T> newSets = new HashSet<T>();
+    	List<T> newSets = new ArrayList<T>();
     	for(byte[] set : sets){
     		newSets.add(ProtoStuffSerializerUtils.deserialize(set, entityClass));
     	}
@@ -646,7 +637,7 @@ public class RedisGeneratorTemplate<T> {
      * @param maxScore
      * @return
      */
-    public Set<T> zRevRangeByScore(String key , final double minScore ,final double maxScore){
+    protected List<T> zRevRangeByScore(String key , final double minScore ,final double maxScore){
     	final byte[] bkey = key.getBytes();  
     	Set<byte[]> sets =  redisTemplate.execute(new RedisCallback<Set<byte[]>>() {  
             @Override  
@@ -657,7 +648,7 @@ public class RedisGeneratorTemplate<T> {
     	if(sets == null || sets.size() <= 0){
     		return null;
     	}
-    	Set<T> newSets = new HashSet<T>();
+    	List<T> newSets = new ArrayList<T>();
     	for(byte[] set : sets){
     		newSets.add(ProtoStuffSerializerUtils.deserialize(set, entityClass));
     	}
@@ -670,7 +661,7 @@ public class RedisGeneratorTemplate<T> {
      * @param values
      * @return
      */
-    public Long zRem(String key , List<T> values){
+    protected Long zRem(String key , List<T> values){
     	final byte[] bkey = key.getBytes();  
     	final byte[][] bvalues = new byte[values.size()][];
     	for(int index = 0 ;index < values.size() ;index++){
@@ -691,7 +682,7 @@ public class RedisGeneratorTemplate<T> {
      * @param end
      * @return
      */
-    public Long zRemRange(String key , final long start , final long end){
+    protected Long zRemRange(String key , final long start , final long end){
     	final byte[] bkey = key.getBytes();  
     	return redisTemplate.execute(new RedisCallback<Long>() {  
             @Override  
@@ -708,7 +699,7 @@ public class RedisGeneratorTemplate<T> {
      * @param maxScore
      * @return
      */
-    public Long zRemRangeByScore(String key, final double minScore ,final double maxScore){
+    protected Long zRemRangeByScore(String key, final double minScore ,final double maxScore){
     	final byte[] bkey = key.getBytes();  
     	return redisTemplate.execute(new RedisCallback<Long>() {  
             @Override  
@@ -724,7 +715,7 @@ public class RedisGeneratorTemplate<T> {
      * @param value
      * @return
      */
-    public Double zScore(String key , T value){
+    protected Double zScore(String key , T value){
     	final byte[] bkey = key.getBytes();  
     	final byte[] bvalue = ProtoStuffSerializerUtils.serialize(value);
     	return redisTemplate.execute(new RedisCallback<Double>() {  
@@ -736,13 +727,37 @@ public class RedisGeneratorTemplate<T> {
     }
     
     /**
+     * 向Set集合中插入一个元素，如果元素大小超过限制，则移除分值最小的元素
+     * @param key
+     * @param limit
+     * @param value
+     * @param score
+     * @return
+     */
+    protected Boolean zAddRemMinScore(String key , final long limit , T value , final double score){
+    	final byte[] bkey = key.getBytes();  
+    	final byte[] bvalue = ProtoStuffSerializerUtils.serialize(value);
+    	return redisTemplate.execute(new RedisCallback<Boolean>() {  
+            @Override  
+            public Boolean doInRedis(RedisConnection connection) throws DataAccessException {  
+            	connection.zAdd(bkey, score , bvalue);
+            	long count = connection.zCard(bkey);//元素个数
+                if(count > limit){
+                	connection.zRemRange(bkey, 0 , count - limit);
+                }
+                return true;
+            }  
+        }); 
+    }
+    
+    /**
      * 插入hash
      * @param key
      * @param field
      * @param value
      * @return
      */
-    public Boolean hSet(String key , String field , T value){
+    protected Boolean hSet(String key , String field , T value){
     	final byte[] bkey = key.getBytes(); 
     	final byte[] bfield = field.getBytes();
     	final byte[] bvalue = ProtoStuffSerializerUtils.serialize(value);
@@ -761,7 +776,7 @@ public class RedisGeneratorTemplate<T> {
      * @param value
      * @return
      */
-    public Boolean hSetNX(String key, String field, T value){
+    protected Boolean hSetNX(String key, String field, T value){
     	final byte[] bkey = key.getBytes(); 
     	final byte[] bfield = field.getBytes();
     	final byte[] bvalue = ProtoStuffSerializerUtils.serialize(value);
@@ -779,7 +794,7 @@ public class RedisGeneratorTemplate<T> {
      * @param field
      * @return
      */
-    public T hGet(String key , String field){
+    protected T hGet(String key , String field){
     	final byte[] bkey = key.getBytes(); 
     	final byte[] bfield = field.getBytes();
     	byte[] result =  redisTemplate.execute(new RedisCallback<byte[]>() {  
@@ -800,7 +815,7 @@ public class RedisGeneratorTemplate<T> {
      * @param fields
      * @return
      */
-    public List<T> hMGet(String key, List<String> fields){
+    protected List<T> hMGet(String key, List<String> fields){
     	if(fields==null || fields.size()<=0){
     		return null;
     	}
@@ -831,7 +846,7 @@ public class RedisGeneratorTemplate<T> {
      * @param fields
      * @return
      */
-    public List<T> hMGet(String key, String... fields){
+    protected List<T> hMGet(String key, String... fields){
     	return hMGet(key, Arrays.asList(fields));
     }
     
@@ -840,7 +855,7 @@ public class RedisGeneratorTemplate<T> {
      * @param key
      * @param hashes
      */
-    public void hMSet(String key, Map<String, T> hashes){
+    protected void hMSet(String key, Map<String, T> hashes){
     	if(hashes == null || hashes.size() <= 0){
     		return ;
     	}
@@ -863,7 +878,7 @@ public class RedisGeneratorTemplate<T> {
      * @param key
      * @return
      */
-    public Long hLen(String key){
+    protected Long hLen(String key){
     	final byte[] bkey = key.getBytes();
     	return redisTemplate.execute(new RedisCallback<Long>() {  
             @Override  
@@ -879,7 +894,7 @@ public class RedisGeneratorTemplate<T> {
      * @param field
      * @return
      */
-    public Boolean hExists(String key , String field){
+    protected Boolean hExists(String key , String field){
     	final byte[] bkey = key.getBytes();
     	final byte[] bfield = field.getBytes();
     	return redisTemplate.execute(new RedisCallback<Boolean>() {  
@@ -896,7 +911,7 @@ public class RedisGeneratorTemplate<T> {
      * @param fields
      * @return
      */
-    public Long hDel(String key, List<String> fields){
+    protected Long hDel(String key, List<String> fields){
     	if(fields == null || fields.size() <=0 ){
     		return 0L;
     	}
@@ -919,7 +934,7 @@ public class RedisGeneratorTemplate<T> {
      * @param fields
      * @return
      */
-    public Long hDel(String key , String... fields){
+    protected Long hDel(String key , String... fields){
     	return hDel(key , Arrays.asList(fields));
     }
     
@@ -927,7 +942,7 @@ public class RedisGeneratorTemplate<T> {
      * 获取hash所有key
      * @return
      */
-    public Set<String> hKeys(String key){
+    protected Set<String> hKeys(String key){
     	final byte[] bkey = key.getBytes();
     	Set<byte[]> bkeys =  redisTemplate.execute(new RedisCallback<Set<byte[]>>() {  
             @Override  
@@ -949,7 +964,7 @@ public class RedisGeneratorTemplate<T> {
      * 获取hash所有value
      * @return
      */
-    public Set<T> hVals(String key){
+    protected Set<T> hVals(String key){
     	final byte[] bkey = key.getBytes();
     	List<byte[]> bvalues =  redisTemplate.execute(new RedisCallback<List<byte[]>>() {  
             @Override  
@@ -972,7 +987,7 @@ public class RedisGeneratorTemplate<T> {
      * @param key
      * @return
      */
-    public Map<String,T> hGetAll(final String key){
+    protected Map<String,T> hGetAll(final String key){
     	Map<byte[],byte[]> bresult = redisTemplate.execute(new RedisCallback<Map<byte[],byte[]>>() {  
             @Override  
             public Map<byte[],byte[]> doInRedis(RedisConnection connection) throws DataAccessException {  
@@ -991,12 +1006,4 @@ public class RedisGeneratorTemplate<T> {
     	return result;
     }
     
-    /**
-     * 设置缓存名称
-     * @param cacheName
-     */
-	private static void setCACHENAME(String cacheName) { CACHENAME = cacheName; }
-	@Value("${cache_name}")
-	public void setCACHENAMEVal(String cacheName) {setCACHENAME(cacheName);};
-	
 }

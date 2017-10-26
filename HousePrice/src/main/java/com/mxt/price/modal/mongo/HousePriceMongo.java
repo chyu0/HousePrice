@@ -1,7 +1,7 @@
-package com.mxt.price.modal;
+package com.mxt.price.modal.mongo;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * HousePrice实体类
@@ -9,7 +9,7 @@ import java.math.BigDecimal;
  * @data 2017年10月20日 下午3:42:04
  * @Description TODO
  */
-public class HousePrice implements Serializable{
+public class HousePriceMongo implements Serializable{
 
 	private static final long serialVersionUID = 8086185709396153934L;
 	
@@ -34,24 +34,9 @@ public class HousePrice implements Serializable{
 	private String city;
 	
 	/**
-	 * 区
+	 * 区县数据列表
 	 */
-	private String district;
-	
-	/**
-	 * 最高价，BigDecimal类型，方便计算
-	 */
-	private BigDecimal maxPrice;
-	
-	/**
-	 * 最低价，BigDecimal类型，方便计算
-	 */
-	private BigDecimal minPrice;
-	
-	/**
-	 * 平均价，BigDecimal类型，方便计算
-	 */
-	private BigDecimal avgPrice;
+	List<DistrictDataMongo> districts;
 	
 
 	public String getId() {
@@ -86,36 +71,11 @@ public class HousePrice implements Serializable{
 		this.city = city;
 	}
 
-	public String getDistrict() {
-		return district;
+	public List<DistrictDataMongo> getDistricts() {
+		return districts;
 	}
 
-	public void setDistrict(String district) {
-		this.district = district;
+	public void setDistricts(List<DistrictDataMongo> districts) {
+		this.districts = districts;
 	}
-
-	public BigDecimal getMaxPrice() {
-		return maxPrice;
-	}
-
-	public void setMaxPrice(BigDecimal maxPrice) {
-		this.maxPrice = maxPrice;
-	}
-
-	public BigDecimal getMinPrice() {
-		return minPrice;
-	}
-
-	public void setMinPrice(BigDecimal minPrice) {
-		this.minPrice = minPrice;
-	}
-
-	public BigDecimal getAvgPrice() {
-		return avgPrice;
-	}
-
-	public void setAvgPrice(BigDecimal avgPrice) {
-		this.avgPrice = avgPrice;
-	}
-	
 }

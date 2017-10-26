@@ -10,17 +10,20 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.mxt.price.modal.BaseData;
-import com.mxt.price.modal.DistrictData;
-import com.mxt.price.modal.HousePrice2;
+import com.mxt.price.modal.common.BaseData;
+import com.mxt.price.modal.mongo.DistrictDataMongo;
+import com.mxt.price.modal.mongo.HousePriceMongo;
+import com.mxt.price.modal.redis.HousePriceRedis;
 import com.mxt.price.service.HousePriceMongoService;
 import com.mxt.price.service.HousePriceRedisService;
 import com.mxt.price.utils.CommonUtils;
@@ -43,24 +46,8 @@ public class HousePriceController extends BaseController {
 	@Resource
 	private HousePriceRedisService housePriceRedisService;
 	
-	@RequestMapping("/save")
-	@ResponseBody
-	public Map<String,Object> save(Model model) {
-		housePriceRedisService.lpush();
-		return this.successResult();
-	}
-	
-	@RequestMapping("/find")
-	@ResponseBody
-	public HousePrice2 findHousePrice(Model model) {
-		return housePriceRedisService.lpop();
-	}
-	
-	@RequestMapping("/remove")
-	@ResponseBody
-	public Long remove(Model model) {
-		return housePriceRedisService.lRem(3);
-	}
+	@Value("${zavg_price_date_limit}")
+	private final int end = 100;
 	
 	@RequestMapping("/readExcel")
 	@ResponseBody
@@ -69,15 +56,85 @@ public class HousePriceController extends BaseController {
 			ClassLoader classLoader = getClass().getClassLoader();
 			URL url = classLoader.getResource("price_excel.xls");
 			File file = new File(url.getFile());
-			List<HousePrice2> housePriceList = HousePriceExcelUtils.getHousePricesByExcel(file);
-			for(HousePrice2 housePrice : housePriceList){
-				housePriceMongoService.save(housePrice);
+			List<HousePriceMongo> housePriceList = HousePriceExcelUtils.getHousePriceMongosByExcel(file);
+			for(HousePriceMongo housePrice : housePriceList){
+				housePriceMongoService.updateInser(housePrice);
 			}
 			return this.successResult();
 		}catch(Exception e){
 			logger.error("从Excel保存数据至MongoDB异常：" + CommonUtils.exceptionToStr(e));
 			return this.failResult("从Excel保存数据至MongoDB异常");
 		}
+	}
+	
+	/**
+	 * 获取某月，所有区县平均房价的排名
+	 * @param model
+	 * @param date
+	 * @return
+	 */
+	@RequestMapping("/avgRankByDate")
+	@ResponseBody
+	public List<HousePriceRedis> getAvgPricRankByDate(Model model , String date){
+		if(StringUtils.isBlank(date)){
+			return null;
+		}
+		//从redis缓存中获取数据
+		List<HousePriceRedis> priceSet = housePriceRedisService.getAvgRankByDate(date);
+		if(priceSet != null && priceSet.size() > 0){
+			return priceSet;
+		}
+		//缓存数量不够时 为Mongodb查找到记录时进行新增
+		List<HousePriceMongo> prices = housePriceMongoService.findHousePricesByDate(date);
+		HousePriceRedis priceRedis = new HousePriceRedis();
+		for(HousePriceMongo price : prices){
+			priceRedis.setCity(price.getCity());
+			priceRedis.setPrivince(price.getProvince());
+			priceRedis.setDate(price.getDate());
+			List<DistrictDataMongo> districts = price.getDistricts();
+			for(DistrictDataMongo district : districts){
+				priceRedis.setDistrict(district.getDistrict());
+				priceRedis.setBaseData(district.getBaseData());
+				housePriceRedisService.addAvgRankByDate(priceRedis);
+			}
+		}
+		return housePriceRedisService.getAvgRankByDate(date);
+	}
+	
+	/**
+	 * 获取某区，月份平均房价的排名
+	 * @param model
+	 * @param date
+	 * @return
+	 */
+	@RequestMapping("/avgRankByDist")
+	@ResponseBody
+	public List<HousePriceRedis> getAvgPricRankByDist(Model model , String district){
+		if(StringUtils.isBlank(district)){
+			return null;
+		}
+		//从redis缓存中获取数据
+		List<HousePriceRedis> priceSet = housePriceRedisService.getAvgRankByDist(district);
+		if(priceSet != null && priceSet.size() > 0){
+			return priceSet;
+		}
+		//缓存数量不够时 为Mongodb查找到记录时进行新增
+		List<HousePriceMongo> prices = housePriceMongoService.findHousePricesByDist(district);
+		HousePriceRedis priceRedis = new HousePriceRedis();
+		for(HousePriceMongo price : prices){
+			priceRedis.setCity(price.getCity());
+			priceRedis.setPrivince(price.getProvince());
+			priceRedis.setDate(price.getDate());
+			List<DistrictDataMongo> districts = price.getDistricts();
+			for(DistrictDataMongo d : districts){
+				if(district.equals(d.getDistrict())){
+					priceRedis.setDistrict(d.getDistrict());
+					priceRedis.setBaseData(d.getBaseData());
+					housePriceRedisService.addAvgRankByDist(priceRedis);
+				}
+			}
+		}
+		return housePriceRedisService.getAvgRankByDate(district);
 	}
 	
 	/**
@@ -91,27 +148,29 @@ public class HousePriceController extends BaseController {
 	@RequestMapping("/avgChart")
 	public String getAvgChart(Model model , @ModelAttribute("city")String city ,@ModelAttribute("startTime")String startTime ,@ModelAttribute("endTime")String endTime , @ModelAttribute("district") String district) {
 		try{
-			List<HousePrice2> avgPriceList = housePriceMongoService.findHousePriceByCityAndDate(city, startTime, endTime);
-			List<String> dateList = new ArrayList<String>();
-			Map<String,List<BaseData>> disMap = new HashMap<String,List<BaseData>>();
-			for(int index = avgPriceList.size()-1 ; index >= 0 ; index --){
-				HousePrice2 housePrice = avgPriceList.get(index);
-				dateList.add(housePrice.getDate());//日期数据
-				List<DistrictData> dists = housePrice.getPrivinces().get(0).getCitys().get(0).getDistricts();
-				for(DistrictData d : dists){
-					if(d.getDistrict().equals(district)){
-						List<BaseData> list = disMap.get(d.getDistrict());
-						if(list == null){
-							list = new ArrayList<BaseData>();
-							disMap.put(d.getDistrict(), list);
+			List<HousePriceMongo> avgPriceList = housePriceMongoService.findHousePricesByCityAndDate(city, startTime, endTime);
+			if(avgPriceList != null && avgPriceList.size() >= 0){
+				List<String> dateList = new ArrayList<String>();
+				Map<String,List<BaseData>> disMap = new HashMap<String,List<BaseData>>();
+				for(int index = avgPriceList.size()-1 ; index >= 0 ; index --){
+					HousePriceMongo housePrice = avgPriceList.get(index);
+					dateList.add(housePrice.getDate());//日期数据
+					List<DistrictDataMongo> dists = housePrice.getDistricts();
+					for(DistrictDataMongo d : dists){
+						if(d.getDistrict().equals(district)){
+							List<BaseData> list = disMap.get(d.getDistrict());
+							if(list == null){
+								list = new ArrayList<BaseData>();
+								disMap.put(d.getDistrict(), list);
+							}
+							list.add(d.getBaseData());
 						}
-						list.add(d.getBaseData());
 					}
 				}
+				model.addAttribute("avgPriceList", avgPriceList);
+				model.addAttribute("disMap", disMap);
+				model.addAttribute("dateList", dateList);
 			}
-			model.addAttribute("avgPriceList", avgPriceList);
-			model.addAttribute("disMap", disMap);
-			model.addAttribute("dateList", dateList);
 		}catch(Exception e){
 			logger.error("获取平均值曲线数据异常" + CommonUtils.exceptionToStr(e));
 		}

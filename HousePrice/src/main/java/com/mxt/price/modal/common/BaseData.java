@@ -1,4 +1,4 @@
-package com.mxt.price.modal;
+package com.mxt.price.modal.common;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

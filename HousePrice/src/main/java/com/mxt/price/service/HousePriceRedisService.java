@@ -1,6 +1,8 @@
 package com.mxt.price.service;
 
-import com.mxt.price.modal.HousePrice2;
+import java.util.List;
+
+import com.mxt.price.modal.redis.HousePriceRedis;
 
 /**
  * @author maoxiaotai
@@ -8,12 +10,31 @@ import com.mxt.price.modal.HousePrice2;
  * @Description TODO
  */
 public interface HousePriceRedisService {
-
-	public void save();
 	
-	public Long lpush();
+	/**
+	 * 按照日期添加元素，分值为均价，集合名如zAvgDateRank:2017-01
+	 * @param housePrice
+	 */
+	public void addAvgRankByDate(HousePriceRedis housePrice);
 	
-	public HousePrice2 lpop();
 	
-	public Long lRem(long count);
+	/**
+	 * 通过日期获取均价排名，数量从配置中读取zavg_price_date_limit
+	 * @param date
+	 * @return
+	 */
+	public List<HousePriceRedis> getAvgRankByDate(String date);
+	
+	/**
+	 * 按照区县添加元素，分值为均价，集合名如zAvgDistRank:江夏区
+	 * @param housePrice
+	 */
+	public void addAvgRankByDist(HousePriceRedis housePrice);
+	
+	/**
+	 * 通过区县获取均价排名，数量从配置中读取zavg_price_dist_limit
+	 * @param date
+	 * @return
+	 */
+	public List<HousePriceRedis> getAvgRankByDist(String district);
 }

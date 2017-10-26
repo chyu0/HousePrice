@@ -1,13 +1,15 @@
-package com.mxt.price.modal;
+package com.mxt.price.modal.mongo;
 
 import java.io.Serializable;
+
+import com.mxt.price.modal.common.BaseData;
 
 /**
  * @author maoxiaotai
  * @data 2017年10月22日 下午9:36:27
  * @Description 区县实体类
  */
-public class DistrictData implements Serializable {
+public class DistrictDataMongo implements Serializable {
 
 	private static final long serialVersionUID = 3386162519294372890L;
 	

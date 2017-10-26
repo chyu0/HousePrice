@@ -2,7 +2,7 @@ package com.mxt.price.service;
 
 import java.util.List;
 
-import com.mxt.price.modal.HousePrice2;
+import com.mxt.price.modal.mongo.HousePriceMongo;
 
 /**
  * @author maoxiaotai
@@ -12,24 +12,39 @@ import com.mxt.price.modal.HousePrice2;
 public interface HousePriceMongoService {
 
 	/**
-	 * 保存数据测试
-	 */
-	public void save();
-	
-	/**
 	 * 保存数据
 	 * @param housePrice2
 	 */
-	public void save(HousePrice2 housePrice2);
+	public void save(HousePriceMongo housePrice);
 	
 	/**
-	 * 数据查询测试
-	 * @return 房价趋势列表
+	 * 通过市和日期查询该市下所有房价数据的列表
+	 * @param city
+	 * @param startTime
+	 * @param endTime
+	 * @return
 	 */
-	public List<HousePrice2> findHousePrice();
+	public List<HousePriceMongo> findHousePricesByCityAndDate(String city , String startTime , String endTime);
+	
 	
 	/**
-	 * 
+	 * 由该条数据更新，没有该条数据时插入，通过日期，省，市查询
+	 * @param housePrice
 	 */
-	public List<HousePrice2> findHousePriceByCityAndDate(String city , String startTime , String endTime);
+	public void updateInser(HousePriceMongo housePrice);
+	
+	
+	/**
+	 * 通过日期查询对应房价的列表
+	 * @param date
+	 * @return
+	 */
+	public List<HousePriceMongo> findHousePricesByDate(String date);
+	
+	/**
+	 * 通过区县查询对应房价的列表
+	 * @param date
+	 * @return
+	 */
+	public List<HousePriceMongo> findHousePricesByDist(String distriction);
 }

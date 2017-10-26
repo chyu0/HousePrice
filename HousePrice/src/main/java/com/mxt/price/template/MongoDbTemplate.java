@@ -35,7 +35,7 @@ public class MongoDbTemplate<T> {
      * @param collectionName 集合名
      * @return			满足条件的集合
      */
-    public List<T> queryList(Query query , String collectionName){
+    protected List<T> queryList(Query query , String collectionName){
     	if(logger.isDebugEnabled()){
     		logger.debug("[Mongo Dao ]queryList("+ collectionName +"):" + query);
     	}
@@ -51,7 +51,7 @@ public class MongoDbTemplate<T> {
      * @param collectionName 集合名
      * @return		满足条件的实体对象
      */
-    public T queryOne(Query query , String collectionName){
+    protected T queryOne(Query query , String collectionName){
     	if(logger.isDebugEnabled()){
     		logger.debug("[Mongo Dao ]queryOne("+ collectionName +"):" + query);
     	}
@@ -69,7 +69,7 @@ public class MongoDbTemplate<T> {
      * @param collectionName 集合名
      * @return
      */
-    public T queryById(String id , String collectionName) {
+    protected T queryById(String id , String collectionName) {
         Query query = new Query();
         Criteria criteria = Criteria.where("_id").is(id);
         query.addCriteria(criteria);
@@ -86,7 +86,7 @@ public class MongoDbTemplate<T> {
      * @param id	删除对象id
      * @param collectionName 集合名
      */
-    public void deleteById(String id , String collectionName) {
+    protected void deleteById(String id , String collectionName) {
         Criteria criteria = Criteria.where("_id").in(id);
         if(null!=criteria){
             Query query = new Query(criteria);
@@ -105,7 +105,7 @@ public class MongoDbTemplate<T> {
      * @param t	待删除对象
      * @param collectionName 集合名
      */
-    public void delete(T t , String collectionName){
+    protected void delete(T t , String collectionName){
     	if(logger.isDebugEnabled()){
     		logger.debug("[Mongo Dao ]delete("+ collectionName +"):" + t);
     	}
@@ -119,7 +119,7 @@ public class MongoDbTemplate<T> {
      * @param t	待删除对象
      * @param collectionName 集合名
      */
-    public void delete(Query query , String collectionName){
+    protected void delete(Query query , String collectionName){
     	if(logger.isDebugEnabled()){
     		logger.debug("[Mongo Dao ]delete("+ collectionName +"):" + query);
     	}
@@ -134,7 +134,7 @@ public class MongoDbTemplate<T> {
      * @param collectionName 集合名
      * @return
      */
-    public void save(T t , String collectionName){
+    protected void save(T t , String collectionName){
     	if(logger.isDebugEnabled()){
     		logger.debug("[Mongo Dao ]save("+ collectionName +"):" + t);
     	}
@@ -149,7 +149,7 @@ public class MongoDbTemplate<T> {
      * @param update	更新属性值
      * @param collectionName 集合名
      */
-    public void updateFirst(Query query,Update update , String collectionName){
+    protected void updateFirst(Query query,Update update , String collectionName){
     	if(logger.isDebugEnabled()){
     		logger.debug("[Mongo Dao ]updateFirst("+ collectionName +"):query(" + query + "),update(" + update + ")");
     	}
@@ -163,7 +163,7 @@ public class MongoDbTemplate<T> {
      * @param update	更新属性值
      * @param collectionName 集合名
      */
-    public void updateMulti(Query query, Update update , String collectionName){
+    protected void updateMulti(Query query, Update update , String collectionName){
     	if(logger.isDebugEnabled()){
     		logger.debug("[Mongo Dao ]updateMulti("+ collectionName +"):query(" + query + "),update(" + update + ")");
     	}
@@ -177,7 +177,7 @@ public class MongoDbTemplate<T> {
      * @param update	更新属性值
      * @param collectionName 集合名
      */
-    public void updateInser(Query query, Update update , String collectionName){
+    protected void updateInser(Query query, Update update , String collectionName){
     	if(logger.isDebugEnabled()){
     		logger.debug("[Mongo Dao ]updateInser("+ collectionName +"):query(" + query + "),update(" + update + ")");
     	}
@@ -193,7 +193,7 @@ public class MongoDbTemplate<T> {
      * @param collectionName 集合名
      * @return		满足条件的集合
      */
-    public List<T> getPage(Query query, int start, int size , String collectionName){
+    protected List<T> getPage(Query query, int start, int size , String collectionName){
         query.skip(start);
         query.limit(size);
         if(logger.isDebugEnabled()){
@@ -211,7 +211,7 @@ public class MongoDbTemplate<T> {
      * @param collectionName 集合名
      * @return			满足条件的记录总数
      */
-    public Long getPageCount(Query query , String collectionName){
+    protected Long getPageCount(Query query , String collectionName){
     	if(logger.isDebugEnabled()){
     		logger.debug("[Mongo Dao ]queryPageCount("+ collectionName +"):" + query);
     	}
@@ -223,7 +223,7 @@ public class MongoDbTemplate<T> {
      *
      * @param mongoTemplate
      */
-    public void setMongoTemplate(MongoTemplate mongoTemplate) {
+    protected void setMongoTemplate(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
     
