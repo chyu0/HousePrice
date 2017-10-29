@@ -34,7 +34,7 @@ public class HousePriceMongoServiceImpl implements HousePriceMongoService {
 	@Override
 	public List<HousePriceMongo> findHousePricesByCityAndDate(String city, String startTime , String endTime) {
 		List<String> timeList = DateUtils.getMonthBetween(startTime, endTime);
-		//Criteria criteria = Criteria.where("privinces").elemMatch(Criteria.where("citys").elemMatch(Criteria.where("city").is(city))).and("date").in(timeList.toArray());
+		//Criteria criteria = Criteria.where("provinces").elemMatch(Criteria.where("citys").elemMatch(Criteria.where("city").is(city))).and("date").in(timeList.toArray());
 		Criteria criteria = Criteria.where("city").is(city).and("date").in(timeList.toArray());
 		Query query = new Query();
 		query.addCriteria(criteria);
@@ -43,8 +43,8 @@ public class HousePriceMongoServiceImpl implements HousePriceMongoService {
 
 	@Override
 	public void updateInser(HousePriceMongo housePrice) {
-		//通过privince，city，date查询记录
-		Criteria criteria = Criteria.where("privince").is(housePrice.getProvince()).and("city").is(housePrice.getCity()).and("date").in(housePrice.getDate());
+		//通过province，city，date查询记录
+		Criteria criteria = Criteria.where("province").is(housePrice.getProvince()).and("city").is(housePrice.getCity()).and("date").in(housePrice.getDate());
 		Query query = new Query();
 		query.addCriteria(criteria);
 		Update update = new Update();
@@ -61,10 +61,46 @@ public class HousePriceMongoServiceImpl implements HousePriceMongoService {
 	}
 
 	@Override
-	public List<HousePriceMongo> findHousePricesByDist(String district) {
+	public List<HousePriceMongo> findHousePricesByDist(String city ,String district) {
 		Criteria criteria = Criteria.where("districts").elemMatch(Criteria.where("district").is(district));
 		Query query = new Query();
 		query.addCriteria(criteria);
 		return  housePriceMongoDao.queryList(query);
+	}
+	
+	@Override
+	public HousePriceMongo findHousePricesByDateAndDist(String date ,String province, String city , String district){
+		Criteria criteria = Criteria.where("date").is(date).and("province").is(province).and("city").is(city).and("districts").elemMatch(Criteria.where("district").is(district));
+		Query query = new Query();
+		query.addCriteria(criteria);
+		return  housePriceMongoDao.queryOne(query);
+	}
+
+	@Override
+	public HousePriceMongo findHousePricesByDateAndCity(String date, String province, String city) {
+		Criteria criteria = Criteria.where("date").is(date).and("province").is(province).and("city").is(city);
+		Query query = new Query();
+		query.addCriteria(criteria);
+		return  housePriceMongoDao.queryOne(query);
+	}
+
+	@Override
+	public List<HousePriceMongo> findHousePricesByStartTimeAndEndTime(String startTime, String endTime) {
+		List<String> timeList = DateUtils.getMonthBetween(startTime, endTime);
+		Criteria criteria = Criteria.where("date").in(timeList.toArray());
+		Query query = new Query();
+		query.addCriteria(criteria);
+		return housePriceMongoDao.queryList(query);
+	}
+
+	@Override
+	public void updateMulti(HousePriceMongo housePrice) {
+		//通过province，city，date查询记录
+		Criteria criteria = Criteria.where("province").is(housePrice.getProvince()).and("city").is(housePrice.getCity()).and("date").in(housePrice.getDate());
+		Query query = new Query();
+		query.addCriteria(criteria);
+		Update update = new Update();
+		update.set("districts", housePrice.getDistricts());
+		housePriceMongoDao.updateMulti(query, update);
 	}
 }

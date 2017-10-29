@@ -38,8 +38,8 @@ public class HousePriceRedisServiceImpl implements HousePriceRedisService {
 	}
 
 	@Override
-	public List<HousePriceRedis> getAvgRankByDist(String district) {
-		return housePriceRedisDao.getAvgRankByDistrict(district);
+	public List<HousePriceRedis> getAvgRankByDist(String province, String city, String district) {
+		return housePriceRedisDao.getAvgRankByDistrict(province, city, district);
 	}
 	
 }

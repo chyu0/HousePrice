@@ -16,7 +16,7 @@ public class HousePriceRedis implements Serializable {
 	/**
 	 * 省
 	 */
-	private String privince;
+	private String province;
 	
 	/**
 	 * 市
@@ -41,12 +41,12 @@ public class HousePriceRedis implements Serializable {
 		this.date = date;
 	}
 
-	public String getPrivince() {
-		return privince;
+	public String getProvince() {
+		return province;
 	}
 
-	public void setPrivince(String privince) {
-		this.privince = privince;
+	public void setProvince(String province) {
+		this.province = province;
 	}
 
 	public String getCity() {

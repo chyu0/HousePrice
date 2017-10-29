@@ -34,7 +34,7 @@ public class RedisGeneratorTemplateTest extends RedisGeneratorTemplate<HousePric
 		baseData.setMinPrice(new BigDecimal(10000.0d));
 		baseData.setAvgPrice(new BigDecimal(15000.0d));
 		
-		housePrice.setPrivince("湖北省");
+		housePrice.setProvince("湖北省");
 		housePrice.setCity("武汉市");
 		housePrice.setDistrict("江夏区");
 		housePrice.setDate("2017-01");

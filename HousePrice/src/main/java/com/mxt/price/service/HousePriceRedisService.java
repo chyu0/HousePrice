@@ -26,15 +26,15 @@ public interface HousePriceRedisService {
 	public List<HousePriceRedis> getAvgRankByDate(String date);
 	
 	/**
-	 * 按照区县添加元素，分值为均价，集合名如zAvgDistRank:江夏区
+	 * 按照省市区县添加元素，分值为均价，集合名如zAvgDistRank:湖北省:武汉市:江夏区
 	 * @param housePrice
 	 */
 	public void addAvgRankByDist(HousePriceRedis housePrice);
 	
 	/**
-	 * 通过区县获取均价排名，数量从配置中读取zavg_price_dist_limit
+	 * 通过省，市，区县获取均价排名，数量从配置中读取zavg_price_dist_limit
 	 * @param date
 	 * @return
 	 */
-	public List<HousePriceRedis> getAvgRankByDist(String district);
+	public List<HousePriceRedis> getAvgRankByDist(String privince, String city ,String district);
 }

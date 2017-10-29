@@ -38,11 +38,29 @@ public class HousePriceMongoDao extends MongoDbTemplate<HousePriceMongo>{
 	}
 	
 	/**
+	 * 查询housePriceMongo
+	 * @param query
+	 * @return
+	 */
+	public HousePriceMongo queryOne(Query query){
+		return super.queryOne(query, collectionName);
+	}
+	
+	/**
 	 * 如果不存在插入记录，如果存在就更新
 	 * @param query
 	 * @param update
 	 */
 	public void upset(Query query , Update update){
 		super.updateInser(query, update, collectionName);
+	}
+	
+	/**
+	 * 更新满足条件的第一条记录
+	 * @param query
+	 * @param update
+	 */
+	public void updateMulti(Query query , Update update){
+		super.updateMulti(query, update, collectionName);
 	}
 }

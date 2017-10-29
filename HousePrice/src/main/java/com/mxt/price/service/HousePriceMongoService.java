@@ -35,6 +35,13 @@ public interface HousePriceMongoService {
 	
 	
 	/**
+	 * 更新满足条件的所有记录
+	 * @param housePrice
+	 */
+	public void updateMulti(HousePriceMongo housePrice);
+	
+	
+	/**
 	 * 通过日期查询对应房价的列表
 	 * @param date
 	 * @return
@@ -42,9 +49,36 @@ public interface HousePriceMongoService {
 	public List<HousePriceMongo> findHousePricesByDate(String date);
 	
 	/**
-	 * 通过区县查询对应房价的列表
+	 * 查询时间段内对应房价的列表
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 */
+	public List<HousePriceMongo> findHousePricesByStartTimeAndEndTime(String startTime, String endTime);
+	
+	/**
+	 * 通过省，市，区县查询对应房价的列表，考虑到区同名情况，有city查询效率也更高
 	 * @param date
 	 * @return
 	 */
-	public List<HousePriceMongo> findHousePricesByDist(String distriction);
+	public List<HousePriceMongo> findHousePricesByDist(String city, String district);
+	
+	/**
+	 * 通过省，市，区县和日期查询对应房价的列表，考虑到区同名情况，有province,city查询效率也更高
+	 * @param date
+	 * @param province
+	 * @param city
+	 * @param district
+	 * @return
+	 */
+	public HousePriceMongo findHousePricesByDateAndDist(String date ,String province ,String city , String district);
+	
+	/**
+	 * 通过省，市，和日期查询对应房价的列表，考虑到区同名情况，有province,city查询效率也更高
+	 * @param date
+	 * @param province
+	 * @param city
+	 * @return
+	 */
+	public HousePriceMongo findHousePricesByDateAndCity(String date ,String province ,String city);
 }

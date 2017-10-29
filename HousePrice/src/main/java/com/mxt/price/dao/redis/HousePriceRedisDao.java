@@ -59,12 +59,14 @@ public class HousePriceRedisDao extends RedisGeneratorTemplate<HousePriceRedis>{
 	}
 	
 	/**
-	 * 通过区县名，获取所有月份中均价的排名
+	 * 通过省，市，区县名，获取所有月份中均价的排名
+	 * @param province
+	 * @param city
 	 * @param district
 	 * @return
 	 */
-	public List<HousePriceRedis> getAvgRankByDistrict(String district){
-		String key = zAvgDistRank + ":" + district;
+	public List<HousePriceRedis> getAvgRankByDistrict(String province ,String city ,String district){
+		String key = zAvgDistRank + ":" + province + ":" + city + ":" + district;
 		return super.zRevRange(key, 0, avgPriceDistLimit);
 	}
 	
@@ -73,7 +75,7 @@ public class HousePriceRedisDao extends RedisGeneratorTemplate<HousePriceRedis>{
 	 * @param price
 	 */
 	public void addAvgRankByDist(HousePriceRedis price){
-		String key = zAvgDistRank + ":"  +price.getDistrict();
+		String key = zAvgDistRank + ":" + price.getProvince() + ":" + price.getCity() + ":" + price.getDistrict();
 		super.zAddRemMinScore(key, avgPriceDateLimit, price, price.getBaseData().getAvgPrice().doubleValue());
 	}
 }

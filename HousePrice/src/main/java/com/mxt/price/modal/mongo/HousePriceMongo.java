@@ -34,6 +34,11 @@ public class HousePriceMongo implements Serializable{
 	private String city;
 	
 	/**
+	 * 市均价
+	 */
+	private String cityAvgPrice;
+	
+	/**
 	 * 区县数据列表
 	 */
 	List<DistrictDataMongo> districts;
@@ -69,6 +74,14 @@ public class HousePriceMongo implements Serializable{
 
 	public void setCity(String city) {
 		this.city = city;
+	}
+
+	public String getCityAvgPrice() {
+		return cityAvgPrice;
+	}
+
+	public void setCityAvgPrice(String cityAvgPrice) {
+		this.cityAvgPrice = cityAvgPrice;
 	}
 
 	public List<DistrictDataMongo> getDistricts() {

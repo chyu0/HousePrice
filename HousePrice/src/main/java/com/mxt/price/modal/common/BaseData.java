@@ -26,6 +26,11 @@ public class BaseData implements Serializable {
 	 * 平均价，BigDecimal类型，方便计算
 	 */
 	private BigDecimal avgPrice;
+	
+	/**
+	 * 平均价涨幅，BigDecimal，方便计算
+	 */
+	private BigDecimal avgPriceRise;
 
 	public BigDecimal getMaxPrice() {
 		return maxPrice;
@@ -49,5 +54,13 @@ public class BaseData implements Serializable {
 
 	public void setAvgPrice(BigDecimal avgPrice) {
 		this.avgPrice = avgPrice;
+	}
+
+	public BigDecimal getAvgPriceRise() {
+		return avgPriceRise;
+	}
+
+	public void setAvgPriceRise(BigDecimal avgPriceRise) {
+		this.avgPriceRise = avgPriceRise;
 	}
 }
