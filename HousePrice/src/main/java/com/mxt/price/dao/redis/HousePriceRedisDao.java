@@ -29,6 +29,18 @@ public class HousePriceRedisDao extends RedisGeneratorTemplate<HousePriceRedis>{
 	private final String zAvgDistRank = null;
 	
 	/**
+	 * 存放某区县所有月份涨幅的排名，从配置文件中读取
+	 */
+	@Value("${zprice_risk_dist_name}")
+	private final String zPriceRiskDistRank = null;
+	
+	/**
+	 * 存放某日期所有城市涨幅的排名，从配置文件中读取
+	 */
+	@Value("${zprice_risk_date_name}")
+	private final String zPriceRiskDateRank = null;
+	
+	/**
 	 * 查询集合结束，读取配置文件数据，100会无效
 	 */
 	@Value("${zavg_price_date_limit}")
@@ -39,6 +51,18 @@ public class HousePriceRedisDao extends RedisGeneratorTemplate<HousePriceRedis>{
 	 */
 	@Value("${zavg_price_dist_limit}")
 	private final int avgPriceDistLimit = 100;
+	
+	/**
+	 * 查询集合结束，读取配置文件数据，100会无效
+	 */
+	@Value("${zprice_risk_dist_limit}")
+	private final int priceRiskDistLimit = 100;
+	
+	/**
+	 * 查询集合结束，读取配置文件数据，100会无效
+	 */
+	@Value("${zprice_risk_date_limit}")
+	private final int priceRiskDateLimit = 100;
 	
 	/**
 	 * 添加元素至zAvgDateRank
@@ -59,6 +83,15 @@ public class HousePriceRedisDao extends RedisGeneratorTemplate<HousePriceRedis>{
 	}
 	
 	/**
+	 * 添加元素至zAvgDistRank
+	 * @param price
+	 */
+	public void addAvgRankByDist(HousePriceRedis price){
+		String key = zAvgDistRank + ":" + price.getProvince() + ":" + price.getCity() + ":" + price.getDistrict();
+		super.zAddRemMinScore(key, avgPriceDateLimit, price, price.getBaseData().getAvgPrice().doubleValue());
+	}
+	
+	/**
 	 * 通过省，市，区县名，获取所有月份中均价的排名
 	 * @param province
 	 * @param city
@@ -70,12 +103,44 @@ public class HousePriceRedisDao extends RedisGeneratorTemplate<HousePriceRedis>{
 		return super.zRevRange(key, 0, avgPriceDistLimit);
 	}
 	
+	
+	/**
+	 * 添加元素至zPriceRiskDateRank
+	 * @param price
+	 */
+	public void addPriceRiskRankByDate(HousePriceRedis price){
+		String key = zPriceRiskDateRank + ":" + price.getDate();
+		super.zAddRemMinScore(key, priceRiskDateLimit, price, price.getBaseData().getAvgPriceRise().doubleValue());
+	}
+	
+	/**
+	 * 通过月份，获取所有区县涨幅的排名
+	 * @param date
+	 */
+	public List<HousePriceRedis> getPriceRiskRankByDate(String date){
+		String key = zPriceRiskDateRank + ":" + date;
+		return super.zRevRange(key, 0, priceRiskDateLimit);
+	}
+	
 	/**
 	 * 添加元素至zAvgDistRank
 	 * @param price
 	 */
-	public void addAvgRankByDist(HousePriceRedis price){
-		String key = zAvgDistRank + ":" + price.getProvince() + ":" + price.getCity() + ":" + price.getDistrict();
-		super.zAddRemMinScore(key, avgPriceDateLimit, price, price.getBaseData().getAvgPrice().doubleValue());
+	public void addPriceRiskRankByDist(HousePriceRedis price){
+		String key = zPriceRiskDistRank + ":" + price.getProvince() + ":" + price.getCity() + ":" + price.getDistrict();
+		super.zAddRemMinScore(key, priceRiskDateLimit, price, price.getBaseData().getAvgPriceRise().doubleValue());
 	}
+	
+	/**
+	 * 通过省，市，区县名，获取所有月份中涨幅的排名
+	 * @param province
+	 * @param city
+	 * @param district
+	 * @return
+	 */
+	public List<HousePriceRedis> getPriceRiskRankByDist(String province ,String city ,String district){
+		String key = zPriceRiskDistRank + ":" + province + ":" + city + ":" + district;
+		return super.zRevRange(key, 0, priceRiskDateLimit);
+	}
+	
 }

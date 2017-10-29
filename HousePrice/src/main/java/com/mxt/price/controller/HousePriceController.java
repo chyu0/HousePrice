@@ -52,6 +52,13 @@ public class HousePriceController extends BaseController {
 	@Value("${zavg_price_date_limit}")
 	private final int zAvgPriceDateLimit = 100;
 	
+	/**
+	 * 数据初始化，此处从Excel初始化数据
+	 * readExcel之后最好进行一次updateRise.action初始化涨幅数据
+	 * @param model
+	 * @return
+	 * @throws IOException
+	 */
 	@RequestMapping("/readExcel")
 	@ResponseBody
 	public Map<String,Object> readExcel(Model model) throws IOException {
@@ -61,7 +68,7 @@ public class HousePriceController extends BaseController {
 			File file = new File(url.getFile());
 			List<HousePriceMongo> housePriceList = HousePriceExcelUtils.getHousePriceMongosByExcel(file);
 			for(HousePriceMongo housePrice : housePriceList){
-				housePriceMongoService.updateInser(housePrice);//插入mongodb
+				housePriceMongoService.updateInser(housePrice);//插入mongodb，有记录是更新为Excel中数据
 			}
 			return this.successResult();
 		}catch(Exception e){
@@ -72,6 +79,7 @@ public class HousePriceController extends BaseController {
 	
 	/**
 	 * 更新某时间段所有城市的平均房价的涨幅
+	 * readExcel之后最好进行一次updateRise初始化涨幅数据
 	 * @param model
 	 * @param city
 	 * @param startTime
@@ -147,6 +155,40 @@ public class HousePriceController extends BaseController {
 	}
 	
 	/**
+	 * 获取某月，所有区县涨幅的排名
+	 * @param model
+	 * @param date
+	 * @return
+	 */
+	@RequestMapping("/riskRankByDate")
+	@ResponseBody
+	public List<HousePriceRedis> getPriceRiskRankByDate(Model model , String date){
+		if(StringUtils.isBlank(date)){
+			return null;
+		}
+		//从redis缓存中获取数据
+		List<HousePriceRedis> priceSet = housePriceRedisService.getPriceRiskRankByDate(date);
+		if(priceSet != null && priceSet.size() > 0){
+			return priceSet;
+		}
+		//缓存数量不够时 为Mongodb查找到记录时进行新增
+		List<HousePriceMongo> prices = housePriceMongoService.findHousePricesByDate(date);
+		HousePriceRedis priceRedis = new HousePriceRedis();
+		for(HousePriceMongo price : prices){
+			priceRedis.setCity(price.getCity());
+			priceRedis.setProvince(price.getProvince());
+			priceRedis.setDate(price.getDate());
+			List<DistrictDataMongo> districts = price.getDistricts();
+			for(DistrictDataMongo district : districts){
+				priceRedis.setDistrict(district.getDistrict());
+				priceRedis.setBaseData(district.getBaseData());
+				housePriceRedisService.addPriceRiskRankByDate(priceRedis);
+			}
+		}
+		return housePriceRedisService.getPriceRiskRankByDate(date);
+	}
+	
+	/**
 	 * 获取某区，月份平均房价的排名
 	 * @param model
 	 * @param date
@@ -179,7 +221,43 @@ public class HousePriceController extends BaseController {
 				}
 			}
 		}
-		return housePriceRedisService.getAvgRankByDate(district);
+		return housePriceRedisService.getAvgRankByDist(province, city, district);
+	}
+	
+	/**
+	 * 获取某区，月份涨幅的排名
+	 * @param model
+	 * @param date
+	 * @return
+	 */
+	@RequestMapping("/riskRankByDist")
+	@ResponseBody
+	public List<HousePriceRedis> getPriceRiskRankByDist(Model model,String province, String city, String district){
+		if(StringUtils.isBlank(district)){
+			return null;
+		}
+		//从redis缓存中获取数据
+		List<HousePriceRedis> priceSet = housePriceRedisService.getPriceRiskRankByDist(province, city, district);
+		if(priceSet != null && priceSet.size() > 0){
+			return priceSet;
+		}
+		//缓存数量不够时 为Mongodb查找到记录时进行新增
+		List<HousePriceMongo> prices = housePriceMongoService.findHousePricesByDist(city, district);
+		HousePriceRedis priceRedis = new HousePriceRedis();
+		for(HousePriceMongo price : prices){
+			priceRedis.setCity(price.getCity());
+			priceRedis.setProvince(price.getProvince());
+			priceRedis.setDate(price.getDate());
+			List<DistrictDataMongo> districts = price.getDistricts();
+			for(DistrictDataMongo d : districts){
+				if(district.equals(d.getDistrict())){
+					priceRedis.setDistrict(d.getDistrict());
+					priceRedis.setBaseData(d.getBaseData());
+					housePriceRedisService.addPriceRiskRankByDist(priceRedis);
+				}
+			}
+		}
+		return housePriceRedisService.getPriceRiskRankByDist(province, city, district);
 	}
 	
 	/**

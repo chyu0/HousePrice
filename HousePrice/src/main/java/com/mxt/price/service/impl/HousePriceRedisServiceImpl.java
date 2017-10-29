@@ -41,5 +41,25 @@ public class HousePriceRedisServiceImpl implements HousePriceRedisService {
 	public List<HousePriceRedis> getAvgRankByDist(String province, String city, String district) {
 		return housePriceRedisDao.getAvgRankByDistrict(province, city, district);
 	}
+
+	@Override
+	public void addPriceRiskRankByDate(HousePriceRedis price) {
+		housePriceRedisDao.addPriceRiskRankByDate(price);
+	}
+
+	@Override
+	public List<HousePriceRedis> getPriceRiskRankByDate(String date) {
+		return housePriceRedisDao.getPriceRiskRankByDate(date);
+	}
+
+	@Override
+	public void addPriceRiskRankByDist(HousePriceRedis price) {
+		housePriceRedisDao.addPriceRiskRankByDist(price);
+	}
+
+	@Override
+	public List<HousePriceRedis> getPriceRiskRankByDist(String province, String city, String district) {
+		return housePriceRedisDao.getPriceRiskRankByDist(province, city, district);
+	}
 	
 }

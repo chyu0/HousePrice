@@ -37,4 +37,30 @@ public interface HousePriceRedisService {
 	 * @return
 	 */
 	public List<HousePriceRedis> getAvgRankByDist(String privince, String city ,String district);
+	
+	/**
+	 * 按照日期添加元素，分值为涨幅，集合名如zPriceRiskDateRank:2017-01
+	 * @param price
+	 */
+	public void addPriceRiskRankByDate(HousePriceRedis price);
+	
+	/**
+	 * 通过日期获取涨幅排名，数量从配置中读取zprice_risk_date_name
+	 * @param date
+	 * @return
+	 */
+	public List<HousePriceRedis> getPriceRiskRankByDate(String date);
+	
+	/**
+	 * 按照省市区县添加元素，分值为均价，集合名如zPriceRiskDistRank:湖北省:武汉市:江夏区
+	 * @param housePrice
+	 */
+	public void addPriceRiskRankByDist(HousePriceRedis price);
+	
+	/**
+	 * 通过省，市，区县获取均价排名，数量从配置中读取zprice_risk_dist_limit
+	 * @param date
+	 * @return
+	 */
+	public List<HousePriceRedis> getPriceRiskRankByDist(String province ,String city ,String district);
 }
