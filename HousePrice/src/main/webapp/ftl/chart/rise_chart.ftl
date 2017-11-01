@@ -1,9 +1,9 @@
 <@override name="css_body">
 <link rel="stylesheet" href="${base}/assets/css/bootstrap-datepicker.css">
-<title>涨幅趋势图</title>
+<title>房价涨幅走势图</title>
 </@override>
 <@override name="page-header">
-涨幅趋势图
+房价涨幅走势图<small>获取具体某区县，在某周期内时间段内，平均房价走势情况</small>
 </@override>
 <@override name="page-inner">
 <div class="row">
@@ -55,7 +55,7 @@
 <script type="text/javascript">
 $(function() {
     //初始化城市信息
-    $(".city_select").citySelect({prov:"湖北",city:"武汉",dist:"${district!''}"});
+    $(".city_select").citySelect({prov:"湖北",city:"武汉"});
     //日期控件初始化
     $('.datetime').datepicker({
     	format: 'yyyy-mm',  
@@ -71,9 +71,9 @@ $(function() {
     $('#searchRise').ajaxForm({
         url: '/housePrice/canvasBaseDataChart.action',
         type: 'POST',
-        data:getFormJson("searchRise"),
+        dataType : "json",
         success: function(responseText, statusText){
-        	var data = eval('('+responseText+')');
+        	var data = responseText;
         	if(data.code==200){
         		refreshChart(data.data.dates , data.data.disMap);
         	}else{

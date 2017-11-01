@@ -1,9 +1,9 @@
 <@override name="css_body">
 <link rel="stylesheet" href="${base}/assets/css/bootstrap-datepicker.css">
-<title>房价趋势走势图</title>
+<title>房价涨幅走势图</title>
 </@override>
 <@override name="page-header">
-房价涨幅走势图
+房价涨幅走势图<small>获取具体周期内，某市区下所有区县房价涨幅情况</small>
 </@override>
 <@override name="page-inner">
 <div class="row">
@@ -36,7 +36,7 @@
 <div class="row">
 <div class="col-md-12">
 	<div class="panel panel-default">
-		<div class="panel-heading">
+		<div class="panel-heading" id="panelHeader">
 				各区县涨幅情况
 		</div>
 		<div class="panel-body">
@@ -70,11 +70,11 @@ $(function() {
     $('#searchDistRise').ajaxForm({
         url: '/housePrice/canvasDistRiseChart.action',
         type: 'POST',
-        data:getFormJson("searchDistRise"),
+        dataType : "json",
         success: function(responseText, statusText){
-        	var data = eval('('+responseText+')');
+        	var data = responseText;
         	if(data.code==200){
-        		refreshChart(data.data.disMap);
+        		refreshChart(data.data.priceRise);
         	}else{
         		bootbox.alert({title:'警告',message:data.msg!=null?data.msg:'数据获取异常'});
         	}
@@ -82,17 +82,18 @@ $(function() {
     });
 });
 
-function refreshChart(priceRise){
+function refreshChart(priceRiseList){
+	var city = $("select[name='city']").val();
 	// 初始化图表标签
 	var myChart = echarts.init(document.getElementById('chart'));
 	var series = new Array();
-	var date = new Array();
+	var dists = new Array();
 	var rise = new Array();
-	for(var k in disMap){
-		date.push(k);
-		rise.push();
+	for(var i=0 ;i < priceRiseList.length ;i++){
+		dists.push(priceRiseList[i].value);
+		rise.push((priceRiseList[i].score*100).toFixed(2));
 	}
-	series.push({name:"${city!''}", type:'line', data: rise  ,  label: {
+	series.push({name:city, type:'line', data: rise  ,  label: {
         normal: {
             show: true,
             position: 'outside',
@@ -100,15 +101,16 @@ function refreshChart(priceRise){
         	}
     	}
     });
+	$("#panelHeader").text(city + '各区县涨幅情况');
 	var options = {
 	    title: {
-	        text: '${city!''}各区县涨幅分步情况'
+	        text: city + '各区县涨幅分步情况'
 	    },
 	    tooltip: {
 	        trigger: 'axis'
 	    },
 	    legend: {
-	        data:['${city!''}']
+	        data:[city]
 	    },
 	    toolbox: {
 	        show: true,

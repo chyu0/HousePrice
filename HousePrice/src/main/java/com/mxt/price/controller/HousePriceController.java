@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mxt.price.modal.common.BaseData;
@@ -61,7 +62,7 @@ public class HousePriceController extends BaseController {
 	}
 	
 	/**
-	 * 显示某城市对应各区县在某时间段内，均价的分步情况
+	 * 显示某城市对应各区县在某时间段内的基础数据
 	 * @param model 	model
 	 * @param city		市级
 	 * @param startTime 开始时间
@@ -95,7 +96,7 @@ public class HousePriceController extends BaseController {
 				}
 				result.put("disMap", disMap);
 				result.put("dates", DateUtils.getMonthBetween(startTime, endTime));
-				return successResult("数据获取成功", result);
+				return successResult(result);
 			}else{
 				return failResult("未取到数据，请重写选择");
 			}
@@ -152,10 +153,45 @@ public class HousePriceController extends BaseController {
 			}
 			List<Map<String,Object>> priceRiseList = housePriceRedisService.getPriceRiseRankByCityAndDate(province, city, dates);
 			result.put("priceRise", priceRiseList);
-			return successResult("数据获取成功", result);
+			return successResult(result);
 		}catch(Exception e){
 			logger.error("获取涨幅曲线数据异常" + CommonUtils.exceptionToStr(e));
 		}
 		return failResult("系统异常");
 	}
+	
+	/**
+	 * 跳转至趋势视图层
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping("distAvgChart")
+	public String getDistAvgChart(Model model){
+		return "chart/dist_avg_chart";
+	}
+	
+	
+	/**
+	 * 查询某市，所有小区，在某月份房价分步情况
+	 * @param model
+	 * @param province
+	 * @param city
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 */
+	@RequestMapping("/canvasDistPriceChart")
+	@ResponseBody
+	public Map<String,Object> canvasDistPriceChart(Model model ,String province, String city , String date) {
+		try{
+			Map<String,Object> result = new HashMap<String,Object>();
+			HousePriceMongo housePrice = housePriceMongoService.findHousePricesByDateAndCity(date, province, city);
+			result.put("housePrice", housePrice);
+			return successResult(result);
+		}catch(Exception e){
+			logger.error("获取涨幅曲线数据异常" + CommonUtils.exceptionToStr(e));
+		}
+		return failResult("系统异常");
+	}
+	
 }

@@ -3,7 +3,7 @@
 <title>平均房价走势图</title>
 </@override>
 <@override name="page-header">
-平均房价走势图<small>获取某区县，在某段周期类的平均房价走势情况</small>
+平均房价走势图<small>获取具体某月分，某市区下所有区县平均房价走势情况</small>
 </@override>
 <@override name="page-inner">
 <div class="row">
@@ -15,20 +15,17 @@
 				</div>
 			</div>
 			<div class="panel-body">
-				<form class="form-inline" id="searchAvg">
+				<form class="form-inline" id="searchDistAvg">
 					<div class="form-group city_select">
 						<label for="district">区县</label> 
 						<select class="form-control prov" name="province"></select> 
 						<select class="form-control city" name="city"></select>
-						<select class="form-control dist" name="district"></select>
 					</div>
 					<div class="form-group">
 						<label for="startTime">日期</label> 
-						<input type="text" class="form-control datetime" name="startTime" data-date-format="yyyy-mm">
-						<label for="endTime">-</label> 
-						<input type="text" class="form-control datetime" name="endTime" data-date-format="yyyy-mm">
+						<input type="text" class="form-control datetime" name="date">
 					</div>
-					<button type="button" class="btn btn-info" onclick="searchAvg()">查询</button>
+					<button type="button" class="btn btn-info" onclick="searchDistAvg()">查询</button>
 				</form>
 			</div>
 		</div>
@@ -37,8 +34,8 @@
 <div class="row">
 <div class="col-md-12">
 	<div class="panel panel-default">
-		<div class="panel-heading" id="panelHeader">
-				平均房价分步情况
+		<div class="panel-heading">
+				单月各区县均价情况
 		</div>
 		<div class="panel-body">
 			<div id="chart" style="width: 1500px; height: 500px;"></div>
@@ -68,14 +65,14 @@ $(function() {
         language: 'cn'  
     });
     
-    $('#searchAvg').ajaxForm({
-        url: '/housePrice/canvasBaseDataChart.action',
+    $('#searchDistAvg').ajaxForm({
+        url: '/housePrice/canvasDistPriceChart.action',
         type: 'POST',
         dataType : "json",
         success: function(responseText, statusText){
         	var data = responseText;
         	if(data.code==200){
-        		refreshChart(data.data.dates , data.data.disMap);
+        		refreshChart(data.data.housePrice);
         	}else{
         		bootbox.alert({title:'警告',message:data.msg!=null?data.msg:'数据获取异常'});
         	}
@@ -83,42 +80,34 @@ $(function() {
     });
 });
 
-function refreshChart(dates , disMap){
+function refreshChart(housePrice){
 	// 初始化图表标签
 	var myChart = echarts.init(document.getElementById('chart'));
 	var series = new Array();
-	for(var k in disMap){
- 	   var value = disMap[k];
- 	   var avgs = new Array();
- 	   for(var i = 0 ; i<value.length ;i++){
- 		   avgs.push(value[i].avgPrice);
- 	   }
- 	   series.push({name:k, type:'line', data: avgs , label: {
- 	        normal: {
- 	            show: true,
- 	            position: 'outside',
- 	            formatter: '{c}' // 这里是数据展示的时候显示的数据
- 	        	}
- 	    	}
- 	    });
-    } 
-	$("#panelHeader").text($("select[name='district']").val() + '平均房价折线图');
+	var dists = new Array();
+	var price = new Array();
+	var distrits = housePrice.districts;
+	for(var i=0 ;i < distrits.length ;i++){
+		dists.push(distrits[i].district);
+		price.push(distrits[i].baseData.avgPrice);
+	}
+	series.push({name:housePrice.date, type:'line', data: price,  label: {
+        normal: {
+            show: true,
+            position: 'outside',
+            formatter: '{c}' // 这里是数据展示的时候显示的数据
+        	}
+    	}
+    });
 	var options = {
 	    title: {
-	        text: $("select[name='district']").val() + $("input[name='startTime']").val() + '至'+ $("input[name='endTime']").val() + '平均房价分步情况'
+	        text: housePrice.city + '各区县'+ housePrice.date +'涨幅分步情况'
 	    },
 	    tooltip: {
 	        trigger: 'axis'
 	    },
 	    legend: {
-	        data:[$("select[name='district']").val()]
-	    },
-	    itemStyle : { 
-	    	normal: {
-	    		label : {
-	    			show: true
-	    			}
-	    		}
+	        data:[housePrice.date]
 	    },
 	    toolbox: {
 	        show: true,
@@ -135,7 +124,7 @@ function refreshChart(dates , disMap){
 	    xAxis:  {
 	        type: 'category',
 	        boundaryGap: false,
-	        data: dates
+	        data: dists
 	    },
 	    yAxis: {
 	        type: 'value',
@@ -150,8 +139,8 @@ function refreshChart(dates , disMap){
 }
 
 //查询表单提交
-function searchAvg(){
-	$("#searchAvg").submit();
+function searchDistAvg(){
+	$("#searchDistAvg").submit();
 	return false;
 }
 </script>
