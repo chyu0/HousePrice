@@ -73,6 +73,4 @@ public class HousePriceRedis implements Serializable {
 		this.baseData = baseData;
 	}
 	
-	
-
 }

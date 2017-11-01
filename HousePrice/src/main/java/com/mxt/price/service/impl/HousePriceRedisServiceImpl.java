@@ -2,12 +2,14 @@ package com.mxt.price.service.impl;
 
 
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
 import com.mxt.price.dao.redis.HousePriceRedisDao;
+import com.mxt.price.dao.redis.StringRedisDao;
 import com.mxt.price.modal.redis.HousePriceRedis;
 import com.mxt.price.service.HousePriceRedisService;
 
@@ -21,6 +23,9 @@ public class HousePriceRedisServiceImpl implements HousePriceRedisService {
 
 	@Resource
 	private HousePriceRedisDao housePriceRedisDao;
+	
+	@Resource
+	private StringRedisDao stringRedisDao;
 
 	@Override
 	public void addAvgRankByDate(HousePriceRedis housePrice) {
@@ -43,23 +48,28 @@ public class HousePriceRedisServiceImpl implements HousePriceRedisService {
 	}
 
 	@Override
-	public void addPriceRiskRankByDate(HousePriceRedis price) {
-		housePriceRedisDao.addPriceRiskRankByDate(price);
+	public void addPriceRiseRankByDate(HousePriceRedis price) {
+		stringRedisDao.addPriceRiseRankByDate(price);
 	}
 
 	@Override
-	public List<HousePriceRedis> getPriceRiskRankByDate(String date) {
-		return housePriceRedisDao.getPriceRiskRankByDate(date);
+	public List<String> getPriceRiseRankByDate(String province, String city ,String date) {
+		return stringRedisDao.getPriceRiseRankByDate(province, city, date);
+	}
+	
+	@Override
+	public List<Map<String,Object>> getPriceRiseRankByCityAndDate(String province, String city ,List<String> dateList) {
+		return stringRedisDao.getPriceRiseByCityAndDate(province, city, dateList);
 	}
 
 	@Override
-	public void addPriceRiskRankByDist(HousePriceRedis price) {
-		housePriceRedisDao.addPriceRiskRankByDist(price);
+	public void addPriceRiseRankByDist(HousePriceRedis price) {
+		housePriceRedisDao.addPriceRiseRankByDist(price);
 	}
 
 	@Override
-	public List<HousePriceRedis> getPriceRiskRankByDist(String province, String city, String district) {
-		return housePriceRedisDao.getPriceRiskRankByDist(province, city, district);
+	public List<HousePriceRedis> getPriceRiseRankByDist(String province, String city, String district) {
+		return housePriceRedisDao.getPriceRiseRankByDist(province, city, district);
 	}
 	
 }

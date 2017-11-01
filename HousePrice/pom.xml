@@ -29,6 +29,7 @@
 		<spring.redis.version>1.6.2.RELEASE</spring.redis.version>
 		<jedis.version>2.7.3</jedis.version>
 		<protostuff.version>1.0.8</protostuff.version>
+		<rapid-core.version>4.0</rapid-core.version>
 	</properties>
 
 	<dependencies>
@@ -123,7 +124,6 @@
 		</dependency>
 		<!-- alibaba fastjson end -->
 
-
 		<!--servlet编译打包使用 start -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -160,6 +160,11 @@
 			<groupId>org.freemarker</groupId>
 			<artifactId>freemarker</artifactId>
 			<version>${freemarker}</version>
+		</dependency>
+		<dependency>
+    		<groupId>com.googlecode.rapid-framework</groupId>
+    		<artifactId>rapid-core</artifactId>
+    		<version>${rapid-core.version}</version>
 		</dependency>
 		<!-- freemarker end -->
 
@@ -247,10 +252,10 @@
 		<dependency>
     		<groupId>junit</groupId>
     		<artifactId>junit</artifactId>
-    		<version>4.10</version>
+    		<version>${junit.version}</version>
 		</dependency>
 		<!-- Junit4 end -->
-		
+
 	</dependencies>
 
 	<build>

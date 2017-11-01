@@ -8,11 +8,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisZSetCommands;
+import org.springframework.data.redis.connection.RedisZSetCommands.Tuple;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -26,17 +28,38 @@ import com.mxt.price.utils.ProtoStuffSerializerUtils;
  */
 public class RedisGeneratorTemplate<T> {
 
-	protected static final int CACHETIME = 60;// 默认缓存时间 60S  
-	protected static final int CACHEHOUR = 60 * 60;// 默认缓存时间 1hr  
-	protected static final int CACHEDAY = 60 * 60 * 24;// 默认缓存时间 1Day  
-	protected static final int CACHEWEEK = 60 * 60 * 24 * 7;// 默认缓存时间 1week  
-	protected static final int CACHEMONTH = 60 * 60 * 24 * 30;// 默认缓存时间 1month  
+	protected final int CACHETIME = 60;// 默认缓存时间 60S  
+	protected final int CACHEHOUR = 60 * 60;// 默认缓存时间 1hr  
+	protected final int CACHEDAY = 60 * 60 * 24;// 默认缓存时间 1Day  
+	protected final int CACHEWEEK = 60 * 60 * 24 * 7;// 默认缓存时间 1week  
+	protected final int CACHEMONTH = 60 * 60 * 24 * 30;// 默认缓存时间 1month  
     
     @Autowired  
     private RedisTemplate<String, String> redisTemplate;  
     
     @SuppressWarnings("unchecked")
-	private Class<T> entityClass = (Class <T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]; 
+	protected final Class<T> entityClass = (Class <T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]; 
+    
+    /**
+     * 设置key的过期时间
+     * @param key
+     * @param timeout
+     * @return
+     */
+    protected boolean setExpire(String key , long timeout){
+    	return redisTemplate.expire(key, timeout, TimeUnit.SECONDS);
+    }
+    
+    /**
+     * 设置key的过期时间，默认一周
+     * @param key
+     * @param timeout
+     * @return
+     */
+    protected boolean setExpire(String key){
+    	return setExpire(key , CACHEWEEK);
+    }
+    
     /**
      * 将一个对象以字节码形式存入redis，如果没有就插入，有就跳过
      * @param key
@@ -440,19 +463,19 @@ public class RedisGeneratorTemplate<T> {
     }
     
     /**
-     * 求sets集合交集，分数是所有交集元素score的和，并存入destkey
+     * 求keys集合交集，分数是所有交集元素score的和，并存入destkey
      * @param destKey
-     * @param sets
+     * @param keys
      * @return
      */
-    protected Long zInterStore(String destKey , List<T> sets){
-    	if(sets == null || sets.size() <= 0){
+    protected Long zInterStore(String destKey , List<String> keys){
+    	if(keys == null || keys.size() <= 0){
     		return null;
     	}
     	final byte[] bkey = destKey.getBytes();  
-    	final byte[][] bsets = new byte[sets.size()][];
-    	for(int i = 0 ; i < sets.size() ;i++){
-    		bsets[i] = ProtoStuffSerializerUtils.serialize(sets.get(i));
+    	final byte[][] bsets = new byte[keys.size()][];
+    	for(int i = 0 ; i < keys.size() ;i++){
+    		bsets[i] = keys.get(i).getBytes();
     	}
     	return redisTemplate.execute(new RedisCallback<Long>() {  
             @Override  
@@ -463,21 +486,21 @@ public class RedisGeneratorTemplate<T> {
     }
     
     /**
-     * 求sets集合交集，分数从aggregate来判断是求和，最大，最小值作为分值，weight为每个集合成的系数
+     * 求keys集合交集，分数从aggregate来判断是求和，最大，最小值作为分值，weight为每个集合成的系数
      * @param destKey
      * @param aggregate
      * @param weights
-     * @param sets
+     * @param keys
      * @return
      */
-    protected Long zInterStore(String destKey , final RedisZSetCommands.Aggregate aggregate, final int[] weights, List<T> sets){
-    	if(sets==null || weights.length != sets.size()){
+    protected Long zInterStore(String destKey , final RedisZSetCommands.Aggregate aggregate, final int[] weights, List<String> keys){
+    	if(keys==null || weights.length != keys.size()){
     		return 0L;
     	}
     	final byte[] bkey = destKey.getBytes();  
-    	final byte[][] bsets = new byte[sets.size()][];
-    	for(int i = 0 ; i < sets.size() ;i++){
-    		bsets[i] = ProtoStuffSerializerUtils.serialize(sets.get(i));
+    	final byte[][] bsets = new byte[keys.size()][];
+    	for(int i = 0 ; i < keys.size() ;i++){
+    		bsets[i] = keys.get(i).getBytes();
     	}
     	return redisTemplate.execute(new RedisCallback<Long>() {  
             @Override  
@@ -493,24 +516,24 @@ public class RedisGeneratorTemplate<T> {
      * @param sets
      * @return
      */
-    protected Long zInterStore(String destKey , @SuppressWarnings("unchecked") T... sets){
+    protected Long zInterStore(String destKey , String... sets){
     	return zInterStore(destKey, Arrays.asList(sets));
     }
     
     /**
      * 求sets集合并集，并存入destkey
      * @param destKey
-     * @param sets
+     * @param keys
      * @return
      */
-    protected Long zUnionStore(String destKey , List<T> sets){
-    	if(sets == null || sets.size() <= 0){
+    protected Long zUnionStore(String destKey , List<String> keys){
+    	if(keys == null || keys.size() <= 0){
     		return null;
     	}
     	final byte[] bkey = destKey.getBytes();  
-    	final byte[][] bsets = new byte[sets.size()][];
-    	for(int i = 0 ; i < sets.size() ;i++){
-    		bsets[i] = ProtoStuffSerializerUtils.serialize(sets.get(i));
+    	final byte[][] bsets = new byte[keys.size()][];
+    	for(int i = 0 ; i < keys.size() ;i++){
+    		bsets[i] = keys.get(i).getBytes();
     	}
     	return redisTemplate.execute(new RedisCallback<Long>() {  
             @Override  
@@ -526,7 +549,7 @@ public class RedisGeneratorTemplate<T> {
      * @param sets
      * @return
      */
-    protected Long zUnionStore(String destKey , @SuppressWarnings("unchecked") T... sets){
+    protected Long zUnionStore(String destKey , String... sets){
     	return zUnionStore(destKey, Arrays.asList(sets));
     }
     
@@ -538,14 +561,14 @@ public class RedisGeneratorTemplate<T> {
      * @param sets
      * @return
      */
-    protected Long zUnionStore(String destKey , final RedisZSetCommands.Aggregate aggregate, final int[] weights, List<T> sets){
-    	if(sets == null || weights.length != sets.size()){
+    protected Long zUnionStore(String destKey , final RedisZSetCommands.Aggregate aggregate, final int[] weights, List<String> keys){
+    	if(keys == null || weights.length != keys.size()){
     		return null;
     	}
     	final byte[] bkey = destKey.getBytes();  
-    	final byte[][] bsets = new byte[sets.size()][];
-    	for(int i = 0 ; i < sets.size() ;i++){
-    		bsets[i] = ProtoStuffSerializerUtils.serialize(sets.get(i));
+    	final byte[][] bsets = new byte[keys.size()][];
+    	for(int i = 0 ; i < keys.size() ;i++){
+    		bsets[i] = keys.get(i).getBytes();
     	}
     	return redisTemplate.execute(new RedisCallback<Long>() {  
             @Override  
@@ -653,6 +676,90 @@ public class RedisGeneratorTemplate<T> {
     		newSets.add(ProtoStuffSerializerUtils.deserialize(set, entityClass));
     	}
     	return newSets;
+    }
+    
+    /**
+     * 获取Set集合中set至end间所有元素
+     * @param key
+     * @param start
+     * @param end
+     * @return
+     */
+    protected Set<Tuple> zRangeWithScores(String key , final long start ,final long end){
+    	final byte[] bkey = key.getBytes();  
+    	Set<Tuple> sets =  redisTemplate.execute(new RedisCallback<Set<Tuple>>() {  
+            @Override  
+            public Set<Tuple> doInRedis(RedisConnection connection) throws DataAccessException {  
+                return connection.zRangeWithScores(bkey, start, end);
+            }  
+        }); 
+    	if(sets == null || sets.size() <= 0){
+    		return null;
+    	}
+    	return sets;
+    }
+    
+    /**
+     * 获取Set集合中set至end间所有元素，并由高到低排列
+     * @param key
+     * @param start
+     * @param end
+     * @return
+     */
+    protected Set<Tuple> zRevRangeWithScores(String key , final long start ,final long end){
+    	final byte[] bkey = key.getBytes();  
+    	Set<Tuple> sets =  redisTemplate.execute(new RedisCallback<Set<Tuple>>() {  
+            @Override  
+            public Set<Tuple> doInRedis(RedisConnection connection) throws DataAccessException {  
+                return connection.zRevRangeWithScores(bkey, start, end);
+            }  
+        }); 
+    	if(sets == null || sets.size() <= 0){
+    		return null;
+    	}
+    	return sets;
+    }
+    
+    /**
+     * 获取分值在minScore至maxScore之间的所有元素
+     * @param key
+     * @param minScore
+     * @param maxScore
+     * @return
+     */
+    protected Set<Tuple> zRangeByScoreWithScores(String key , final double minScore ,final double maxScore){
+    	final byte[] bkey = key.getBytes();  
+    	Set<Tuple> sets =  redisTemplate.execute(new RedisCallback<Set<Tuple>>() {  
+            @Override  
+            public Set<Tuple> doInRedis(RedisConnection connection) throws DataAccessException {  
+                return connection.zRangeByScoreWithScores(bkey, minScore, maxScore);
+            }  
+        }); 
+    	if(sets == null || sets.size() <= 0){
+    		return null;
+    	}
+    	return sets;
+    }
+    
+    /**
+     * 获取分值在minScore至maxScore之间的所有元素，并由高到低排列
+     * @param key
+     * @param minScore
+     * @param maxScore
+     * @return
+     */
+    protected Set<Tuple> zRevRangeByScoreWithScores(String key , final double minScore ,final double maxScore){
+    	final byte[] bkey = key.getBytes();  
+    	Set<Tuple> sets =  redisTemplate.execute(new RedisCallback<Set<Tuple>>() {  
+            @Override  
+            public Set<Tuple> doInRedis(RedisConnection connection) throws DataAccessException {  
+                return connection.zRevRangeByScoreWithScores(bkey, minScore, maxScore);
+            }  
+        }); 
+    	if(sets == null || sets.size() <= 0){
+    		return null;
+    	}
+    	return sets;
     }
     
     /**

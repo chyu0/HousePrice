@@ -87,8 +87,8 @@ public class HousePriceExcelUtils {
                         
                         if(rowNum != 0){
                     		HousePriceMongo housePrice = new HousePriceMongo();
-                    		housePrice.setProvince("湖北省");
-                    		housePrice.setCity("武汉市");
+                    		housePrice.setProvince("湖北");
+                    		housePrice.setCity("武汉");
                     		String date = DateFormatUtils.format(row.getCell(0).getDateCellValue(), "yyyy-MM");//日期
                     		housePrice.setDate(date);
                     		housePrice.setDistricts(districtLists);

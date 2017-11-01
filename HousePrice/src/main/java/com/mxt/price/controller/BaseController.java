@@ -40,6 +40,10 @@ public class BaseController {
 		return renderMap(message, 200, data);
 	}
     
+    protected <T> Map<String,Object> successResult(T data) {
+		return renderMap(null, 200, data);
+	}
+    
     protected <T> Map<String,Object> successResult(String message) {
 		return renderMap(message, 200, null);
 	}

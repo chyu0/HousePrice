@@ -15,15 +15,33 @@
        http://www.springframework.org/schema/aop   
        http://www.springframework.org/schema/aop/spring-aop.xsd">
     
+    <bean id="fmXmlEscape" class="freemarker.template.utility.XmlEscape" />  
+    
+    <!-- freemarker继承，覆盖 -->
+    <bean id="blockDirective" class="cn.org.rapid_framework.freemarker.directive.BlockDirective"/>  
+    <bean id="extendsDirective" class="cn.org.rapid_framework.freemarker.directive.ExtendsDirective"/>  
+    <bean id="overrideDirective" class="cn.org.rapid_framework.freemarker.directive.OverrideDirective"/>  
+    <bean id="superDirective" class="cn.org.rapid_framework.freemarker.directive.SuperDirective"/> 
+    
     <!-- 必须添加freemarkerConfig的配置，否则不能识别 -->  
     <bean id="freemarkerConfig"  class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">    
-    <property name="templateLoaderPath" value="/" />    
-    <property name="freemarkerSettings">    
-        <props>    
-            <prop key="default_encoding">UTF-8</prop> <!-- 默认编码方式 -->  
-            <prop key="classic_compatible">true</prop><!-- 此属性可以防止模板解析空值时的错误 -->  
-        </props>    
-    </property>    
+    	<property name="templateLoaderPath" value="/" />    
+    	<property name="freemarkerSettings">    
+        	<props>    
+            	<prop key="default_encoding">UTF-8</prop> <!-- 默认编码方式 -->  
+            	<prop key="classic_compatible">true</prop><!-- 此属性可以防止模板解析空值时的错误 -->  
+        	</props>    
+    	</property>    
+    	<property name="freemarkerVariables">  
+            <map>  
+                <entry key="xml_escape" value-ref="fmXmlEscape" />  
+                <!--下面四个是在下面定义的-->  
+                <entry key="extends" value-ref="extendsDirective"/>  
+                <entry key="override" value-ref="overrideDirective"/>  
+                <entry key="block" value-ref="blockDirective"/>  
+                <entry key="super" value-ref="superDirective"/>  
+            </map>  
+        </property>  
     </bean>    
     
     <!-- 扫描freemarker下静态类 -->
@@ -43,8 +61,13 @@
         <property name="suffix">  
             <value>.ftl</value>
         </property>  
+        <property name="exposeRequestAttributes" value="true" />
+    	<property name="exposeSessionAttributes" value="true" />
+    	<property name="exposeSpringMacroHelpers" value="true" />
+    	<property name="requestContextAttribute" value="request" />
         <!-- 此处需要声明为utf-8编码，否则即使页面是utf-8编码，中文还是不能正常显示 -->  
         <property name="contentType" value="text/html;charset=UTF-8"></property> 
         <property name="attributesMap" ref="freemarkerMap"/>   
     </bean>
+    
 </beans>
