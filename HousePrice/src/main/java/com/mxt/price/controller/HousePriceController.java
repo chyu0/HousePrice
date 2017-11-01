@@ -51,6 +51,16 @@ public class HousePriceController extends BaseController {
 	}
 	
 	/**
+	 * 跳转至平均价视图层
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping("riseChart")
+	public String getRiseChart(Model model){
+		return "chart/rise_chart";
+	}
+	
+	/**
 	 * 显示某城市对应各区县在某时间段内，均价的分步情况
 	 * @param model 	model
 	 * @param city		市级
@@ -59,9 +69,9 @@ public class HousePriceController extends BaseController {
 	 * @param endTime 	结束时间
 	 * @return avg_chart视图
 	 */
-	@RequestMapping("/canvasAvgChart")
+	@RequestMapping("/canvasBaseDataChart")
 	@ResponseBody
-	public Map<String,Object> canvasAvgChart(Model model , String city ,String startTime ,String endTime , String district) {
+	public Map<String,Object> canvasBaseDataChart(Model model , String city ,String startTime ,String endTime , String district) {
 		try{
 			Map<String,Object> result = new HashMap<String,Object>();
 			List<HousePriceMongo> avgPriceList = housePriceMongoService.findHousePricesByCityAndDate(city, startTime, endTime);
@@ -148,7 +158,4 @@ public class HousePriceController extends BaseController {
 		}
 		return failResult("系统异常");
 	}
-	
-	
-	
 }

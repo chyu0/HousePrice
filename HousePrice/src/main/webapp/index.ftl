@@ -48,6 +48,36 @@
     <!-- /. WRAPPER  -->
 	<#include "/common/macro/script.ftl">
 	<@block name="script_body"></@block>
+	<script type="text/javascript">
+		var link = window.location.href.split(window.location.host)[1];
+		var linkUrl = link.indexOf('?') != -1 ? link.split('?')[0] : link;
+		$(document).ready(function(){
+			$("#main-menu").children('li').each(function(){
+				if(activeMenu($(this))){
+					li.addClass('active');
+				}
+			});
+		});
+	
+		//菜单激活
+		function activeMenu(li){
+			var ul = li.children('ul');
+			if(ul != null && ul.length > 0){
+				ul.children('li').each(function(){
+					if(activeMenu($(this))){
+						li.addClass('active');
+						ul.addClass('in');
+					}
+				});
+			}else{
+				if(li.children('a').attr('href') == linkUrl){
+					li.children('a').addClass('active-menu');
+					return true;
+				}
+			}
+			return false;
+		}
+	</script>
 </body>
 
 </html>

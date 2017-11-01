@@ -15,7 +15,7 @@
 				</div>
 			</div>
 			<div class="panel-body">
-				<form class="form-inline" id="searchPiceRise">
+				<form class="form-inline" id="searchDistRise">
 					<div class="form-group city_select">
 						<label for="district">区县</label> 
 						<select class="form-control prov" name="province"></select> 
@@ -27,7 +27,7 @@
 						<label for="endTime">-</label> 
 						<input type="text" class="form-control datetime" name="endTime" data-date-format="yyyy-mm">
 					</div>
-					<button type="button" class="btn btn-info" onclick="searchPiceRise()">查询</button>
+					<button type="button" class="btn btn-info" onclick="searchDistRise()">查询</button>
 				</form>
 			</div>
 		</div>
@@ -67,14 +67,14 @@ $(function() {
         language: 'cn'  
     });
     
-    $('#searchPiceRise').ajaxForm({
+    $('#searchDistRise').ajaxForm({
         url: '/housePrice/canvasDistRiseChart.action',
         type: 'POST',
-        data:getFormJson("searchPiceRise"),
+        data:getFormJson("searchDistRise"),
         success: function(responseText, statusText){
         	var data = eval('('+responseText+')');
         	if(data.code==200){
-        		refreshChart(data.data.priceRise);
+        		refreshChart(data.data.disMap);
         	}else{
         		bootbox.alert({title:'警告',message:data.msg!=null?data.msg:'数据获取异常'});
         	}
@@ -86,11 +86,11 @@ function refreshChart(priceRise){
 	// 初始化图表标签
 	var myChart = echarts.init(document.getElementById('chart'));
 	var series = new Array();
-	var dists = new Array();
+	var date = new Array();
 	var rise = new Array();
-	for(var i=0 ; i<priceRise.length ; i++){
-		dists.push(priceRise[i].value);
-		rise.push((priceRise[i].score * 100).toFixed(3));
+	for(var k in disMap){
+		date.push(k);
+		rise.push();
 	}
 	series.push({name:"${city!''}", type:'line', data: rise  ,  label: {
         normal: {
@@ -140,8 +140,8 @@ function refreshChart(priceRise){
 }
 
 //查询表单提交
-function searchPiceRise(){
-	$("#searchPiceRise").submit();
+function searchDistRise(){
+	$("#searchDistRise").submit();
 	return false;
 }
 </script>

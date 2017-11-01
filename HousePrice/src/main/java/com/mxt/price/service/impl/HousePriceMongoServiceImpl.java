@@ -103,4 +103,13 @@ public class HousePriceMongoServiceImpl implements HousePriceMongoService {
 		update.set("districts", housePrice.getDistricts());
 		housePriceMongoDao.updateMulti(query, update);
 	}
+
+	@Override
+	public List<HousePriceMongo> findHousePricesByDateListAndDist(String startTime, String endTime, String city, String district) {
+		List<String> dateList = DateUtils.getMonthBetween(startTime, endTime);
+		Criteria criteria = Criteria.where("city").is(city).and("date").in(dateList).and("districts").elemMatch(Criteria.where("district").is(district));;
+		Query query = new Query();
+		query.addCriteria(criteria);
+		return housePriceMongoDao.queryList(query);
+	}
 }

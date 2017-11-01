@@ -1,9 +1,9 @@
 <@override name="css_body">
 <link rel="stylesheet" href="${base}/assets/css/bootstrap-datepicker.css">
-<title>平均房价走势图</title>
+<title>涨幅趋势图</title>
 </@override>
 <@override name="page-header">
-平均房价趋势图
+涨幅趋势图
 </@override>
 <@override name="page-inner">
 <div class="row">
@@ -15,7 +15,7 @@
 				</div>
 			</div>
 			<div class="panel-body">
-				<form class="form-inline" id="searchAvg">
+				<form class="form-inline" id="searchRise">
 					<div class="form-group city_select">
 						<label for="district">区县</label> 
 						<select class="form-control prov" name="province"></select> 
@@ -28,7 +28,7 @@
 						<label for="endTime">-</label> 
 						<input type="text" class="form-control datetime" name="endTime" data-date-format="yyyy-mm">
 					</div>
-					<button type="button" class="btn btn-info" onclick="searchAvg()">查询</button>
+					<button type="button" class="btn btn-info" onclick="searchRise()">查询</button>
 				</form>
 			</div>
 		</div>
@@ -37,8 +37,8 @@
 <div class="row">
 <div class="col-md-12">
 	<div class="panel panel-default">
-		<div class="panel-heading">
-				平均房价分步情况
+		<div class="panel-heading" id = "panelHeader">
+				涨幅趋势图
 		</div>
 		<div class="panel-body">
 			<div id="chart" style="width: 1500px; height: 500px;"></div>
@@ -68,10 +68,10 @@ $(function() {
         language: 'cn'  
     });
     
-    $('#searchAvg').ajaxForm({
+    $('#searchRise').ajaxForm({
         url: '/housePrice/canvasBaseDataChart.action',
         type: 'POST',
-        data:getFormJson("searchAvg"),
+        data:getFormJson("searchRise"),
         success: function(responseText, statusText){
         	var data = eval('('+responseText+')');
         	if(data.code==200){
@@ -89,26 +89,23 @@ function refreshChart(dates , disMap){
 	var series = new Array();
 	for(var k in disMap){
  	   var value = disMap[k];
- 	   var avgs = "";
+ 	   var avgs = new Array();
  	   for(var i = 0 ; i<value.length ;i++){
- 		   if(i != value.length - 1){
- 			  avgs = avgs + value[i].avgPrice + ","; 
- 		   }else{
- 			  avgs = avgs + value[i].avgPrice;
- 		   }
+ 		   avgs.push((value[i].avgPriceRise * 100).toFixed(2));
  	   }
- 	   series.push({name:k, type:'line', data: avgs.split(",") , label: {
+ 	   series.push({name:k, type:'line', data: avgs ,smooth:true,  label: {
  	        normal: {
  	            show: true,
  	            position: 'outside',
- 	            formatter: '{c}' // 这里是数据展示的时候显示的数据
+ 	            formatter: '{c}%' // 这里是数据展示的时候显示的数据
  	        	}
  	    	}
  	    });
     } 
+	$("#panelHeader").text($("select[name='district']").val() + '涨幅趋势图');
 	var options = {
 	    title: {
-	        text: '${district!''}${startTime!''}至${endTime!''}平均房价分步情况'
+	        text: $("select[name='city']").val() + $("select[name='district']").val() + $("input[name='startTime']").val() + '至'+ $("input[name='endTime']").val() +'涨幅分步情况'
 	    },
 	    tooltip: {
 	        trigger: 'axis'
@@ -143,7 +140,7 @@ function refreshChart(dates , disMap){
 	    yAxis: {
 	        type: 'value',
 	        axisLabel: {
-	            formatter: '{value} 元'
+	            formatter: '{value} %'
 	        },
 	        min:'dataMin'
 	    },
@@ -153,8 +150,8 @@ function refreshChart(dates , disMap){
 }
 
 //查询表单提交
-function searchAvg(){
-	$("#searchAvg").submit();
+function searchRise(){
+	$("#searchRise").submit();
 	return false;
 }
 </script>

@@ -81,4 +81,14 @@ public interface HousePriceMongoService {
 	 * @return
 	 */
 	public HousePriceMongo findHousePricesByDateAndCity(String date ,String province ,String city);
+	
+	
+	/**
+	 * 通过市，区，查询某时间段内的数据
+	 * @param date
+	 * @param province
+	 * @param city
+	 * @return
+	 */
+	public List<HousePriceMongo> findHousePricesByDateListAndDist(String startTime, String endTime, String city ,String district);
 }
