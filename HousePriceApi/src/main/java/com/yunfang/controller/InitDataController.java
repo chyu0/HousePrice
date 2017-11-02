@@ -19,6 +19,12 @@ import com.yunfang.service.HousePriceMongoService;
 import com.yunfang.utils.CommonUtils;
 import com.yunfang.utils.HousePriceExcelUtils;
 
+/**
+ * 数据初始化，从Excel中读取数据，进行初始化
+ * @author maoxiaotai
+ * @data 2017年11月2日 下午5:05:04
+ * @Description TODO
+ */
 @Controller
 @RequestMapping("init")
 public class InitDataController extends BaseController{

@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  * 权限校验注解
- * @author chenyu23
+ * @author maoxiaotai
  * @data 2017年11月2日 上午9:20:13
  * @Description TODO
  */

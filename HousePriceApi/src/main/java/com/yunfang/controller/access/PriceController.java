@@ -81,7 +81,7 @@ public class PriceController extends BaseController{
 			result.setDate(new Date());
 			result.setMessage("接口调用正常");
 			result.setResult((JSONObject)JSON.toJSON(map));
-			
+			result.setCode(ResultCode.SUCCESS.getCode());
 		}catch(Exception e){
 			result.setSuccess(false);
 			result.setDate(new Date());
@@ -91,4 +91,9 @@ public class PriceController extends BaseController{
 		return result;
 	}
 	
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+			System.out.println(new Date().getTime());
+	}
 }

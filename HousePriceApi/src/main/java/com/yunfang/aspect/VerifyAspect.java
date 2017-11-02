@@ -24,7 +24,7 @@ import com.yunfang.service.AccessVerifyService;
 
 /**
  * aop切面层，主要负责做权限校验
- * @author chenyu23
+ * @author maoxiaotai
  * @data 2017年11月2日 下午1:41:06
  * @Description TODO
  */

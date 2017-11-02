@@ -1,8 +1,7 @@
 package com.mxt.price.controller;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -12,11 +11,14 @@ import javax.annotation.Resource;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.mxt.price.modal.common.BaseData;
 import com.mxt.price.modal.mongo.DistrictDataMongo;
 import com.mxt.price.modal.mongo.HousePriceMongo;
@@ -26,7 +28,7 @@ import com.mxt.price.service.HousePriceRedisService;
 import com.mxt.price.utils.BigDecimalUtils;
 import com.mxt.price.utils.CommonUtils;
 import com.mxt.price.utils.DateUtils;
-import com.mxt.price.utils.HousePriceExcelUtils;
+import com.mxt.price.utils.HttpRequestUtils;
 
 /**
  * 数据初始化controller
@@ -45,29 +47,49 @@ public class InitDataController extends BaseController{
 	@Resource
 	private HousePriceRedisService housePriceRedisService;
 	
-	/**
-	 * 数据初始化，此处从Excel初始化数据
-	 * readExcel之后最好进行一次updateRise.action初始化涨幅数据
-	 * @param model
-	 * @return
-	 * @throws IOException
-	 */
-	@RequestMapping("/readExcel")
+	@Value("${access_signature}")
+	private String assign = null;
+	
+	
+	@RequestMapping("/initData")
 	@ResponseBody
-	public Map<String,Object> readExcel(Model model) throws IOException {
-		try{
-			ClassLoader classLoader = getClass().getClassLoader();
-			URL url = classLoader.getResource("price_excel.xls");
-			File file = new File(url.getFile());
-			List<HousePriceMongo> housePriceList = HousePriceExcelUtils.getHousePriceMongosByExcel(file);
-			for(HousePriceMongo housePrice : housePriceList){
-				housePriceMongoService.updateInser(housePrice);//插入mongodb，有记录是更新为Excel中数据
+	public Map<String,Object> initDataFromHttp(String startDate , String endDate , String province , String city){
+		StringBuffer str = new StringBuffer();
+		//url组装，调用云房接口，形如http://www.fangyun.com/price/avgPrice?time_stamp=1509610841808&access_signature=***&province_name=%E6%B9%96%E5%8C%97&city_name=%E6%AD%A6%E6%B1%89&date=2016-10
+		str.append("http://www.fangyun.com/price/avgPrice?time_stamp=");
+		Long timestamp = Calendar.getInstance().getTimeInMillis();
+		str.append(timestamp).append("&access_signature=").append(assign);
+		str.append("&province_name=").append(province).append("&city_name=").append(city);
+		List<String> dateList = DateUtils.getMonthBetween(startDate, endDate);
+		for(String date : dateList){
+			String url = str.toString() + "&date=" + date;
+			JSONObject jsonResult = HttpRequestUtils.httpGet(url);
+			if(jsonResult.getIntValue("code") == 200){//接口调用成功，返回正确结果
+				HousePriceMongo housePriceMongo = new HousePriceMongo();
+				housePriceMongo.setCity(city);
+				housePriceMongo.setDate(date);
+				housePriceMongo.setProvince(province);
+				List<DistrictDataMongo> distMongoList = new ArrayList<DistrictDataMongo>();
+				JSONObject result = jsonResult.getJSONObject("result");//实际数据
+				JSONArray districts = result.getJSONArray("districts");//省数据
+				if(districts != null && districts.size() > 0){
+					for(int index=0 ;index < districts.size() ;index++){
+						JSONObject district = districts.getJSONObject(index);
+						String avgPrice = district.getString("district_avg_price");
+						String distName = district.getString("district_name");
+						DistrictDataMongo distMongo = new DistrictDataMongo();
+						BaseData baseData = new BaseData();
+						baseData.setAvgPrice(new BigDecimal(avgPrice));
+						distMongo.setDistrict(distName);
+						distMongo.setBaseData(baseData);
+						distMongoList.add(distMongo);
+					}
+				}
+				housePriceMongo.setDistricts(distMongoList);
+				housePriceMongoService.updateInser(housePriceMongo);
 			}
-			return this.successResult();
-		}catch(Exception e){
-			logger.error("从Excel保存数据至MongoDB异常：" + CommonUtils.exceptionToStr(e));
-			return this.failResult("从Excel保存数据至MongoDB异常");
 		}
+		return successResult();
 	}
 	
 	/**
