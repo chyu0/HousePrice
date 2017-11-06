@@ -3,6 +3,7 @@ package com.mxt.price.controller;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +51,11 @@ public class InitDataController extends BaseController{
 	@Value("${access_signature}")
 	private String assign = null;
 	
+	@RequestMapping("initAvg")
+	public String initAvg(){
+		return "init/initAvg";
+	}
+	
 	
 	@RequestMapping("/initData")
 	@ResponseBody
@@ -61,35 +67,62 @@ public class InitDataController extends BaseController{
 		str.append(timestamp).append("&access_signature=").append(assign);
 		str.append("&province_name=").append(province).append("&city_name=").append(city);
 		List<String> dateList = DateUtils.getMonthBetween(startDate, endDate);
+		List<Map<String,Object>> failResult = new ArrayList<Map<String,Object>>();
 		for(String date : dateList){
-			String url = str.toString() + "&date=" + date;
-			JSONObject jsonResult = HttpRequestUtils.httpGet(url);
-			if(jsonResult.getIntValue("code") == 200){//接口调用成功，返回正确结果
-				HousePriceMongo housePriceMongo = new HousePriceMongo();
-				housePriceMongo.setCity(city);
-				housePriceMongo.setDate(date);
-				housePriceMongo.setProvince(province);
-				List<DistrictDataMongo> distMongoList = new ArrayList<DistrictDataMongo>();
-				JSONObject result = jsonResult.getJSONObject("result");//实际数据
-				JSONArray districts = result.getJSONArray("districts");//省数据
-				if(districts != null && districts.size() > 0){
-					for(int index=0 ;index < districts.size() ;index++){
-						JSONObject district = districts.getJSONObject(index);
-						String avgPrice = district.getString("district_avg_price");
-						String distName = district.getString("district_name");
-						DistrictDataMongo distMongo = new DistrictDataMongo();
-						BaseData baseData = new BaseData();
-						baseData.setAvgPrice(new BigDecimal(avgPrice));
-						distMongo.setDistrict(distName);
-						distMongo.setBaseData(baseData);
-						distMongoList.add(distMongo);
-					}
+			Map<String,Object> returnResult = new HashMap<String,Object>();
+			try{
+				String url = str.toString() + "&date=" + date;
+				JSONObject jsonResult = HttpRequestUtils.httpGet(url);
+				if(jsonResult == null){
+					returnResult.put("date", date);
+					returnResult.put("code", 500);
+					returnResult.put("message", "请检查网络是否通畅");
+					failResult.add(returnResult);
+					continue;
 				}
-				housePriceMongo.setDistricts(distMongoList);
-				housePriceMongoService.updateInser(housePriceMongo);
+				if(jsonResult.getIntValue("code") == 200){//接口调用成功，返回正确结果
+					HousePriceMongo housePriceMongo = new HousePriceMongo();
+					housePriceMongo.setCity(city);
+					housePriceMongo.setDate(date);
+					housePriceMongo.setProvince(province);
+					List<DistrictDataMongo> distMongoList = new ArrayList<DistrictDataMongo>();
+					JSONObject result = jsonResult.getJSONObject("result");//实际数据
+					JSONArray districts = result.getJSONArray("districts");//省数据
+					if(districts != null && districts.size() > 0){
+						for(int index=0 ;index < districts.size() ;index++){
+							JSONObject district = districts.getJSONObject(index);
+							String avgPrice = district.getString("district_avg_price");
+							String distName = district.getString("district_name");
+							DistrictDataMongo distMongo = new DistrictDataMongo();
+							BaseData baseData = new BaseData();
+							baseData.setAvgPrice(new BigDecimal(avgPrice));
+							distMongo.setDistrict(distName);
+							distMongo.setBaseData(baseData);
+							distMongoList.add(distMongo);
+						}
+					}
+					housePriceMongo.setDistricts(distMongoList);
+					housePriceMongoService.updateInser(housePriceMongo);
+				}else{
+					returnResult.put("date", date);
+					returnResult.put("code", jsonResult.getIntValue("code"));
+					returnResult.put("message", jsonResult.get("message"));
+					failResult.add(returnResult);
+				}
+			}catch(Exception e){
+				logger.error("外部接口数据获取异常：" + CommonUtils.exceptionToStr(e));
+				returnResult.put("date", date);
+				returnResult.put("code", "500");
+				returnResult.put("message", "接口调用异常，请检查网络是否通畅，" + e);
+				failResult.add(returnResult);
 			}
 		}
-		return successResult();
+		return successResult(failResult);
+	}
+	
+	@RequestMapping("initRise")
+	public String initRise(){
+		return "init/initRise";
 	}
 	
 	/**
@@ -104,35 +137,60 @@ public class InitDataController extends BaseController{
 	@RequestMapping("/updateRise")
 	@ResponseBody
 	public Map<String,Object> updateAvgPriceRise(Model model ,String startTime ,String endTime){
-		try{
-			List<HousePriceMongo> housePriceList = housePriceMongoService.findHousePricesByStartTimeAndEndTime(startTime, endTime);
-			Calendar cal = Calendar.getInstance();
-			for(HousePriceMongo housePrice : housePriceList){
-				cal.setTime(DateUtils.parse(housePrice.getDate(), DateUtils.DATE_TO_STRING_MONTH_PATTERN));
+		List<HousePriceMongo> housePriceList = housePriceMongoService.findHousePricesByStartTimeAndEndTime(startTime, endTime);
+		if(housePriceList == null || housePriceList.size() <= 0){
+			return failResult("抱歉，为获取到当前时间段的数据");
+		}
+		List<String> dateList = DateUtils.getMonthBetween(startTime, endTime);
+		List<String> dealList = new ArrayList<String>();
+		List<Map<String, Object>> failResult = new ArrayList<Map<String, Object>>();
+		for (HousePriceMongo housePrice : housePriceList) {
+			Map<String,Object> returnResult = new HashMap<String,Object>();
+			returnResult.put("date", housePrice.getDate());
+			returnResult.put("province", housePrice.getProvince());
+			returnResult.put("city", housePrice.getCity());
+			dealList.add(housePrice.getDate());
+			try{
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(DateUtils.parse(housePrice.getDate(),DateUtils.DATE_TO_STRING_MONTH_PATTERN));
 				cal.add(Calendar.MONTH, -1);
-				String lastMonth = DateUtils.format(cal.getTime(), DateUtils.DATE_TO_STRING_MONTH_PATTERN);
-				HousePriceMongo lastMonthPrice = housePriceMongoService.findHousePricesByDateAndCity(lastMonth, housePrice.getProvince(), housePrice.getCity());
-				if(lastMonthPrice != null){
+				String lastMonth = DateUtils.format(cal.getTime(),DateUtils.DATE_TO_STRING_MONTH_PATTERN);
+				HousePriceMongo lastMonthPrice = housePriceMongoService.findHousePricesByDateAndCity(lastMonth,housePrice.getProvince(), housePrice.getCity());
+				if (lastMonthPrice != null && lastMonthPrice.getDistricts()!=null) {
 					List<DistrictDataMongo> distList = housePrice.getDistricts();
 					List<DistrictDataMongo> lastDistList = lastMonthPrice.getDistricts();
-					for(DistrictDataMongo dist : distList){
-						for(DistrictDataMongo lastDist : lastDistList){
-							if(dist.getDistrict().equals(lastDist.getDistrict())){
+					for (DistrictDataMongo dist : distList) {
+						for (DistrictDataMongo lastDist : lastDistList) {
+							if (dist.getDistrict().equals(lastDist.getDistrict())) {
 								BaseData baseData = dist.getBaseData();
-								baseData.setAvgPriceRise(BigDecimalUtils.rise(lastDist.getBaseData().getAvgPrice(), baseData.getAvgPrice(), 6));
+								baseData.setAvgPriceRise(BigDecimalUtils.rise(lastDist.getBaseData().getAvgPrice(),baseData.getAvgPrice(), 6));
 								dist.setBaseData(baseData);
 								break;
 							}
 						}
 					}
+					housePriceMongoService.updateMulti(housePrice);
+				}else{
+					returnResult.put("code", "300");
+					returnResult.put("message", "为获取到"+lastMonth+"的数据");
+					failResult.add(returnResult);
 				}
-				housePriceMongoService.updateMulti(housePrice);
+			}catch(Exception e){
+				logger.error("均价数据更新异常：" + CommonUtils.exceptionToStr(e));
+				returnResult.put("code", "500");
+				returnResult.put("message", "均价数据更新异常，" + e);
+				failResult.add(returnResult);
 			}
-			return this.successResult();
-		}catch(Exception e){
-			logger.error("从Excel保存数据至MongoDB异常：" + CommonUtils.exceptionToStr(e));
-			return this.failResult("更新某时间段所有城市的平均房价的涨幅失败");
 		}
+		dateList.removeAll(dealList);//移除所以已处理
+		for(String d : dateList){//把所有没有数据的记录添加到失败记录中
+			Map<String,Object> returnResult = new HashMap<String,Object>();
+			returnResult.put("date", d);
+			returnResult.put("code", "500");
+			returnResult.put("message", "为获取到当月数据");
+			failResult.add(returnResult);
+		}
+		return this.successResult(failResult);
 	}
 	
 	/**

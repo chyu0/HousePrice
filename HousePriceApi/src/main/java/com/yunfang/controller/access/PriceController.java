@@ -53,7 +53,7 @@ public class PriceController extends BaseController{
 			
 			HousePriceMongo mongo = housePriceMongoService.findHousePricesByDateAndCity(date, province_name, city_name);
 			
-			if(mongo == null || mongo.getDistricts() == null){
+			if(mongo == null || mongo.getDistricts() == null || mongo.getDistricts().size() <= 0){
 				result.setSuccess(false);
 				result.setDate(new Date());
 				result.setMessage("获取数据为空");
