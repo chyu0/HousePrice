@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -59,7 +60,7 @@ public class VerifyAspect {
 			}
 			
 			//此处不适用方法名做校验的原因，在于，可能会存在多个类具有同名方法的情况
-			String verifyFlag = verify.verifyFlag();
+			String serviceCode = verify.serviceCode();
 			//依据不同情况，给出不同的校验参数，可自己定义
 			String timeStampName = verify.timeStamp();
 			String assignName = verify.access_sign();
@@ -73,7 +74,7 @@ public class VerifyAspect {
 			}
 			
 			//参数校验
-			if(paramMap.get(timeStampName) == null || paramMap.get(assignName) == null){
+			if(StringUtils.isBlank(serviceCode) || paramMap.get(timeStampName) == null || paramMap.get(assignName) == null){
 				result.setSuccess(false);
 				result.setDate(now);
 				result.setMessage("校验失败，请检查time_stamp或access_signature是否正确");
@@ -84,10 +85,10 @@ public class VerifyAspect {
 			//获取签名和时间戳
 			Long timestamp = Long.parseLong((String)paramMap.get(timeStampName));
 			String assign = (String)paramMap.get(assignName);
-			
+			String sercode = (String)paramMap.get(serviceCode);
 			
 			//权限校验
-			PublicKeyVerifyCode code = accessVerifyService.verify(timestamp, assign, verifyFlag);
+			PublicKeyVerifyCode code = accessVerifyService.verify(timestamp, assign, sercode);
 			if(code != PublicKeyVerifyCode.ACCESSSUCCESS){
 				result.setSuccess(false);
 				result.setDate(now);

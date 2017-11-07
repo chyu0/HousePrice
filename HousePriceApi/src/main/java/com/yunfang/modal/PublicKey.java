@@ -15,7 +15,7 @@ public class PublicKey implements Serializable{
 
 	private String publicKey;
 	
-	private List<String> verifyFlag;
+	private List<String> serviceCodes;
 
 	public String getPublicKey() {
 		return publicKey;
@@ -25,12 +25,12 @@ public class PublicKey implements Serializable{
 		this.publicKey = publicKey;
 	}
 
-	public List<String> getVerifyFlag() {
-		return verifyFlag;
+	public List<String> getServiceCodes() {
+		return serviceCodes;
 	}
 
-	public void setVerifyFlag(List<String> verifyFlag) {
-		this.verifyFlag = verifyFlag;
+	public void setServiceCodes(List<String> serviceCodes) {
+		this.serviceCodes = serviceCodes;
 	}
 
 }

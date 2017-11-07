@@ -21,7 +21,7 @@ public @interface AuthVerify {
 	 * 校验唯一性标识，会进行比对，查看该用户是否有相应权限，主要做校验
 	 * @return
 	 */
-	public String verifyFlag() default "";
+	public String serviceCode() default "serviceCode";
 	
 	/**
 	 * 校验参数名，默认是time_stamp和access_signature

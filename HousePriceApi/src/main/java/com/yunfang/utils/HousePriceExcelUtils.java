@@ -78,7 +78,10 @@ public class HousePriceExcelUtils {
                         	}else{
                         		DistrictDataMongo districtData = new DistrictDataMongo();
                         		BaseData baseData = new BaseData();
-                        		baseData.setAvgPrice(new BigDecimal(row.getCell(index).getNumericCellValue()));
+                        		double avgPrice = row.getCell(index).getNumericCellValue();
+                        		baseData.setAvgPrice(new BigDecimal(avgPrice));
+                        		baseData.setMaxPrice(BigDecimalUtils.add(BigDecimalUtils.mul(avgPrice, RandomUtils.maxRise()).intValue(), avgPrice));
+                        		baseData.setMinPrice(BigDecimalUtils.sub(avgPrice , BigDecimalUtils.mul(avgPrice, RandomUtils.minRise()).intValue()));
                         		districtData.setBaseData(baseData);
                         		districtData.setDistrict(districtMap.get(index));
                         		districtLists.add(districtData);

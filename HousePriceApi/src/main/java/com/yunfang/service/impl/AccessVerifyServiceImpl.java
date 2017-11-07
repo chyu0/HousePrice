@@ -50,7 +50,7 @@ public class AccessVerifyServiceImpl implements AccessVerifyService, Application
 	private PublicKeyService publicKeyService;
 	
 	@Override
-	public PublicKeyVerifyCode verify(Long timestamp, String publicKey, String verifyFlag) {
+	public PublicKeyVerifyCode verify(Long timestamp, String publicKey, String serviceCode) {
 		
 		//验证时间搓是否合法
 		Date now = new Date();
@@ -67,10 +67,10 @@ public class AccessVerifyServiceImpl implements AccessVerifyService, Application
 		}
 		
 		PublicKey key = publicKeyService.findVerifyByKey(publicKey);
-		if(key != null && key.getVerifyFlag() != null && key.getVerifyFlag().size() > 0){
-			List<String> verifyFlags = key.getVerifyFlag();
-			for(String flag : verifyFlags){
-				if(flag.equals(verifyFlag)){
+		if(key != null && key.getServiceCodes() != null && key.getServiceCodes().size() > 0){
+			List<String> serviceCodes = key.getServiceCodes();
+			for(String code : serviceCodes){
+				if(code.equals(serviceCode)){
 					return PublicKeyVerifyCode.ACCESSSUCCESS;
 				}
 			}

@@ -49,7 +49,7 @@ public class PublicKeyServiceImpl implements PublicKeyService {
 		Query query = new Query();
 		query.addCriteria(criteria);
 		Update update = new Update();
-		update.set("verifyFlag", publicKey.getVerifyFlag());
+		update.set("serviceCodes", publicKey.getServiceCodes());
 		publicKeyDao.update(query, update);
 	}
 

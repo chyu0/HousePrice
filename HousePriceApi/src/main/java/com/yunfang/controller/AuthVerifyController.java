@@ -44,25 +44,25 @@ public class AuthVerifyController extends BaseController {
 	 */
 	@RequestMapping("saveKey")
 	@ResponseBody
-	public String saveKey(String publicKey , String verifyFlagStr){
+	public String saveKey(String publicKey , String serviceCodeStr){
 		try{
 			PublicKey key = publicKeyService.findVerifyByKey(publicKey);
 			if(key == null){
 				PublicKey publicKeyObj = new PublicKey();
 				publicKeyObj.setPublicKey(publicKey);
-				if(StringUtils.isNotBlank(verifyFlagStr)){
-					List<String> verifyFlag = Arrays.asList(verifyFlagStr.split(","));
-					publicKeyObj.setVerifyFlag(verifyFlag);
+				if(StringUtils.isNotBlank(serviceCodeStr)){
+					List<String> serviceCodes = Arrays.asList(serviceCodeStr.split(","));
+					publicKeyObj.setServiceCodes(serviceCodes);
 				}
 				publicKeyService.save(publicKeyObj);
 				accessVerifyService.addNewVerify(publicKey);
 			}else{
-				if(StringUtils.isNotBlank(verifyFlagStr)){
-					List<String> curVerifyFlag = key.getVerifyFlag();
-					List<String> verifyFlag = new ArrayList<String>(Arrays.asList(verifyFlagStr.split(",")));
-					verifyFlag.removeAll(curVerifyFlag);
-					verifyFlag.addAll(curVerifyFlag);
-					key.setVerifyFlag(verifyFlag);
+				if(StringUtils.isNotBlank(serviceCodeStr)){
+					List<String> curServiceCodes = key.getServiceCodes();
+					List<String> serviceCode = new ArrayList<String>(Arrays.asList(serviceCodeStr.split(",")));
+					serviceCode.removeAll(curServiceCodes);
+					serviceCode.addAll(curServiceCodes);
+					key.setServiceCodes(serviceCode);
 					publicKeyService.update(key);
 				}
 			}

@@ -10,7 +10,9 @@ public enum ResultCode {
 
 	SUCCESS(200, "接口调用正常") , ACCESSERROR(400 , "权限校验异常，无相关权限") ,
 	ERROR(500 , "接口调用异常") , VERIFYPARAMSERROR(301 , "校验参数错误") , 
-	NULLRESULT(302, "接口调用返回结果为空") , REQUESTPARAMSERROR(303, "请求参数为空");
+	NULLRESULT(302, "接口调用返回结果为空") , REQUESTPARAMSERROR(303, "请求参数为空"),
+	NULLSERVICECODE(304, "serviceCode不能为空") , ERRORSERVICECODE(401, "serviceCode不合法"),
+	NOSUCHMETHOD(305, "serviceCode或者参数异常");
 	
 	private Integer code;
 	private String desc;
