@@ -56,15 +56,37 @@ public class HousePriceApiServiceImpl implements HousePriceApiService {
 	}
 
 	@Override
-	public Map<String , Object> maxPrice(String province_name, String city_name, String date) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Map<String , Object> minPrice(String province_name, String city_name, String date) {
-		// TODO Auto-generated method stub
-		return null;
+	public Map<String , Object> maxMinPrice(String province_name, String city_name, String date) {
+		Map<String , Object> map = new HashMap<String, Object>();
+		
+		if(StringUtils.isBlank(province_name) || StringUtils.isBlank(city_name) || StringUtils.isBlank(date)){
+			map.put("code", ResultCode.REQUESTPARAMSERROR.getCode());
+			map.put("msg", "请求参数不能为空");
+			return map;
+		}
+		
+		HousePriceMongo mongo = housePriceMongoService.findHousePricesByDateAndCity(date, province_name, city_name);
+		
+		if(mongo == null || mongo.getDistricts() == null || mongo.getDistricts().size() <= 0){
+			map.put("code", ResultCode.NULLRESULT.getCode());
+			map.put("msg", "为获取到相关数据");
+			return map;
+		}
+		
+		map.put("date", mongo.getDate());
+		map.put("city_name", city_name);
+		map.put("province_name", province_name);
+		List<DistrictDataMongo> dists = mongo.getDistricts();
+		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
+		for(DistrictDataMongo dist : dists){
+			Map<String,Object> d = new HashMap<String,Object>();
+			d.put("district_name", dist.getDistrict());
+			d.put("district_max_price", dist.getBaseData().getMaxPrice());
+			d.put("district_min_price", dist.getBaseData().getMinPrice());
+			list.add(d);
+		}
+		map.put("districts", list);
+		return map;
 	}
 
 }

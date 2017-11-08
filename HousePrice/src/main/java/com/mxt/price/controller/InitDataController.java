@@ -56,12 +56,14 @@ public class InitDataController extends BaseController{
 		return "init/initAvg";
 	}
 	
+	private String avgCode = "S0079";//均价服务码
+	private String maxMinCode = "S0080";//最高最低服务码
 	
 	@RequestMapping("/initData")
 	@ResponseBody
 	public Map<String,Object> initDataFromHttp(String startDate , String endDate , String province , String city){
 		StringBuffer str = new StringBuffer();
-		//url组装，调用云房接口，形如http://open.fangjia.com/property/transaction?time_stamp=1509610841808&serviceCode=***&province_name=%E6%B9%96%E5%8C%97&city_name=%E6%AD%A6%E6%B1%89&date=2016-10
+		//url组装，调用云房接口，形如http://open.fangjia.com/property/transaction?time_stamp=1509610841808&serviceCode=S0079&token=***&province_name=%E6%B9%96%E5%8C%97&city_name=%E6%AD%A6%E6%B1%89&date=2016-10
 		str.append("http://open.fangjia.com/property/transaction?time=");
 		Long timestamp = Calendar.getInstance().getTimeInMillis();
 		str.append(timestamp).append("&token=").append(assign);
@@ -71,42 +73,87 @@ public class InitDataController extends BaseController{
 		for(String date : dateList){
 			Map<String,Object> returnResult = new HashMap<String,Object>();
 			try{
-				String url = str.toString() + "&date=" + date;
-				JSONObject jsonResult = HttpRequestUtils.httpGet(url);
-				if(jsonResult == null){
+				String avgUrl = str.toString() + "&serviceCode=" + avgCode + "&date=" + date;
+				String maxMinUrl = str.toString() + "&serviceCode=" + maxMinCode + "&date=" + date;
+				JSONObject avgJsonResult = HttpRequestUtils.httpGet(avgUrl);
+				JSONObject maxMinJsonResult = HttpRequestUtils.httpGet(maxMinUrl);
+				if(avgJsonResult == null){//avg接口条用异常
 					returnResult.put("date", date);
 					returnResult.put("code", 500);
-					returnResult.put("message", "请检查网络是否通畅");
+					returnResult.put("message", "请检查"+avgCode+"网络是否通畅");
 					failResult.add(returnResult);
 					continue;
 				}
-				if(jsonResult.getIntValue("code") == 200){//接口调用成功，返回正确结果
-					HousePriceMongo housePriceMongo = new HousePriceMongo();
+				if(maxMinJsonResult == null){//最高最低价接口调用异常
+					returnResult.put("date", date);
+					returnResult.put("code", 500);
+					returnResult.put("message", "请检查"+maxMinCode+"网络是否通畅");
+					failResult.add(returnResult);
+					continue;
+				}
+				Map<String, DistrictDataMongo> distMap = new HashMap<String, DistrictDataMongo>();
+				HousePriceMongo housePriceMongo = new HousePriceMongo();
+				if(avgJsonResult.getIntValue("code") == 200){//接口调用成功，返回正确结果
 					housePriceMongo.setCity(city);
 					housePriceMongo.setDate(date);
 					housePriceMongo.setProvince(province);
-					List<DistrictDataMongo> distMongoList = new ArrayList<DistrictDataMongo>();
-					JSONObject result = jsonResult.getJSONObject("result");//实际数据
+					JSONObject result = avgJsonResult.getJSONObject("result");//实际数据
+					if(result == null || result.get("code") != null){
+						returnResult.put("date", date);
+						returnResult.put("code", result.getIntValue("code"));
+						returnResult.put("message", result.getString("msg"));
+						failResult.add(returnResult);
+						continue;
+					}
 					JSONArray districts = result.getJSONArray("districts");//省数据
 					if(districts != null && districts.size() > 0){
 						for(int index=0 ;index < districts.size() ;index++){
 							JSONObject district = districts.getJSONObject(index);
-							String avgPrice = district.getString("district_avg_price");
 							String distName = district.getString("district_name");
 							DistrictDataMongo distMongo = new DistrictDataMongo();
 							BaseData baseData = new BaseData();
-							baseData.setAvgPrice(new BigDecimal(avgPrice));
+							baseData.setAvgPrice(new BigDecimal(district.getString("district_avg_price")));
 							distMongo.setDistrict(distName);
+							distMongo.setBaseData(baseData);
+							distMap.put(distName, distMongo);
+						}
+					}
+				}else{
+					returnResult.put("date", date);
+					returnResult.put("code", avgJsonResult.getIntValue("code"));
+					returnResult.put("message", "获取均价接口："+avgJsonResult.get("message"));
+					failResult.add(returnResult);
+				}
+				if(maxMinJsonResult.getIntValue("code") == 200){//接口调用成功，返回正确结果
+					JSONObject result = maxMinJsonResult.getJSONObject("result");//实际数据
+					if(result == null || result.get("code") != null){
+						returnResult.put("date", date);
+						returnResult.put("code", result.getIntValue("code"));
+						returnResult.put("message", result.getString("msg"));
+						failResult.add(returnResult);
+						continue;
+					}
+					JSONArray districts = result.getJSONArray("districts");//省数据
+					List<DistrictDataMongo> distMongoList = new ArrayList<DistrictDataMongo>();
+					if(districts != null && districts.size() > 0){
+						for(int index=0 ;index < districts.size() ;index++){
+							JSONObject dist = districts.getJSONObject(index);
+							String distName = dist.getString("district_name");
+							DistrictDataMongo distMongo = distMap.get(distName);
+							JSONObject district = districts.getJSONObject(index);
+							BaseData baseData = distMongo.getBaseData();
+							baseData.setMaxPrice(new BigDecimal(district.getString("district_max_price")));
+							baseData.setMinPrice(new BigDecimal(district.getString("district_min_price")));
 							distMongo.setBaseData(baseData);
 							distMongoList.add(distMongo);
 						}
+						housePriceMongo.setDistricts(distMongoList);
+						housePriceMongoService.updateInser(housePriceMongo);
 					}
-					housePriceMongo.setDistricts(distMongoList);
-					housePriceMongoService.updateInser(housePriceMongo);
 				}else{
 					returnResult.put("date", date);
-					returnResult.put("code", jsonResult.getIntValue("code"));
-					returnResult.put("message", jsonResult.get("message"));
+					returnResult.put("code", maxMinJsonResult.getIntValue("code"));
+					returnResult.put("message", "获取最高最低价接口" + maxMinJsonResult.get("message"));
 					failResult.add(returnResult);
 				}
 			}catch(Exception e){

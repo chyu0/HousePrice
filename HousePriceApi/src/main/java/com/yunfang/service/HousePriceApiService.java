@@ -20,20 +20,12 @@ public interface HousePriceApiService {
 	public Map<String , Object> avgPrice(String province_name, String city_name, String date);
 	
 	/**
-	 * 获取最高价
+	 * 获取最高价和最低价
 	 * @param province_name
 	 * @param city_name
 	 * @param date
 	 * @return
 	 */
-	public Map<String , Object> maxPrice(String province_name, String city_name, String date);
+	public Map<String , Object> maxMinPrice(String province_name, String city_name, String date);
 	
-	/**
-	 * 获取最低价
-	 * @param province_name
-	 * @param city_name
-	 * @param date
-	 * @return
-	 */
-	public Map<String , Object> minPrice(String province_name, String city_name, String date);
 }
