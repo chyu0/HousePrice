@@ -28,6 +28,23 @@
 						<label for="endTime">-</label> 
 						<input type="text" class="form-control datetime" name="endTime" data-date-format="yyyy-mm">
 					</div>
+					
+					<div class="form-group">
+						<label for="showMaxMinPrice">是否显示最高最低价</label> 
+						<div class="radio">
+  							<label>
+    							<input type="radio" name="showMax" value="0" checked>
+    							不显示
+  							</label>
+						</div>
+						<div class="radio">
+  							<label> 
+    							<input type="radio" name="showMax" value="1">
+    							显示
+  							</label>
+						</div>
+					 </div>
+					 
 					<button type="button" class="btn btn-info" onclick="searchAvg()">查询</button>
 				</form>
 			</div>
@@ -84,16 +101,23 @@ $(function() {
 });
 
 function refreshChart(dates , disMap){
+	var showMax = $("input:radio[name='showMax']:checked").val();
 	// 初始化图表标签
 	var myChart = echarts.init(document.getElementById('chart'));
 	var series = new Array();
+	var legend = new Array();
 	for(var k in disMap){
  	   var value = disMap[k];
  	   var avgs = new Array();
+ 	   var maxs = new Array();
+ 	   var mins = new Array();
  	   for(var i = 0 ; i<value.length ;i++){
  		   avgs.push(value[i].avgPrice);
+ 		   maxs.push(value[i].maxPrice);
+ 		   mins.push(value[i].minPrice);
  	   }
- 	   series.push({name:k, type:'line', data: avgs , label: {
+ 	   legend.push('平均价');
+ 	   series.push({name:'平均价', type:'line', data: avgs , label: {
  	        normal: {
  	            show: true,
  	            position: 'outside',
@@ -101,6 +125,27 @@ function refreshChart(dates , disMap){
  	        	}
  	    	}
  	    });
+ 	   if(showMax == "1"){
+ 		  legend.push('最高价');
+ 		  series.push({name:'最高价', type:'line', data: maxs , label: {
+ 	 	        normal: {
+ 	 	            show: true,
+ 	 	            position: 'outside',
+ 	 	            formatter: '{c}' // 这里是数据展示的时候显示的数据
+ 	 	        	}
+ 	 	    	}
+ 	 	    });
+ 		  legend.push('最低价');
+ 		  series.push({name:'最低价', type:'line', data: mins , label: {
+  	        normal: {
+  	            show: true,
+  	            position: 'outside',
+  	            formatter: '{c}' // 这里是数据展示的时候显示的数据
+  	        	}
+  	    	}
+  	    	});
+ 	   }
+ 	   
     } 
 	$("#panelHeader").text($("select[name='district']").val() + '平均房价折线图');
 	var options = {
@@ -111,7 +156,7 @@ function refreshChart(dates , disMap){
 	        trigger: 'axis'
 	    },
 	    legend: {
-	        data:[$("select[name='district']").val()]
+	        data:legend
 	    },
 	    itemStyle : { 
 	    	normal: {

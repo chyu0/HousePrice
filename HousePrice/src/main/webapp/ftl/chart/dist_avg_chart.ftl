@@ -25,6 +25,21 @@
 						<label for="startTime">日期</label> 
 						<input type="text" class="form-control datetime" name="date">
 					</div>
+					<div class="form-group">
+						<label for="showMaxMinPrice">是否显示最高最低价</label> 
+						<div class="radio">
+  							<label>
+    							<input type="radio" name="showMax" value="0" checked>
+    							不显示
+  							</label>
+						</div>
+						<div class="radio">
+  							<label> 
+    							<input type="radio" name="showMax" value="1">
+    							显示
+  							</label>
+						</div>
+					 </div>
 					<button type="button" class="btn btn-info" onclick="searchDistAvg()">查询</button>
 				</form>
 			</div>
@@ -81,17 +96,23 @@ $(function() {
 });
 
 function refreshChart(housePrice){
+	var showMax = $("input:radio[name='showMax']:checked").val();
 	// 初始化图表标签
 	var myChart = echarts.init(document.getElementById('chart'));
 	var series = new Array();
 	var dists = new Array();
 	var price = new Array();
+	var maxs = new Array();
+	var mins = new Array();
 	var distrits = housePrice.districts;
 	for(var i=0 ;i < distrits.length ;i++){
 		dists.push(distrits[i].district);
 		price.push(distrits[i].baseData.avgPrice);
+		maxs.push(distrits[i].baseData.maxPrice);
+		mins.push(distrits[i].baseData.minPrice);
 	}
-	series.push({name:housePrice.date, type:'line', data: price,  label: {
+	var legend = ['平均价'];
+	series.push({name:'平均价', type:'line', data: price,  label: {
         normal: {
             show: true,
             position: 'outside',
@@ -99,6 +120,28 @@ function refreshChart(housePrice){
         	}
     	}
     });
+	if(showMax == "1"){
+		legend.push('最高价');
+		series.push({name:'最高价', type:'line', data: maxs,  label: {
+	        normal: {
+	            show: true,
+	            position: 'outside',
+	            formatter: '{c}' // 这里是数据展示的时候显示的数据
+	        	}
+	    	}
+	    });
+		legend.push('最低价');
+		series.push({name:'最低价', type:'line', data: mins,  label: {
+	        normal: {
+	            show: true,
+	            position: 'outside',
+	            formatter: '{c}' // 这里是数据展示的时候显示的数据
+	        	}
+	    	}
+	    });
+	}
+	
+	
 	var options = {
 	    title: {
 	        text: housePrice.city + '各区县'+ housePrice.date +'涨幅分步情况'
@@ -107,7 +150,7 @@ function refreshChart(housePrice){
 	        trigger: 'axis'
 	    },
 	    legend: {
-	        data:[housePrice.date]
+	        data:legend
 	    },
 	    toolbox: {
 	        show: true,
