@@ -123,6 +123,7 @@ public class InitDataController extends BaseController{
 					returnResult.put("code", avgJsonResult.getIntValue("code"));
 					returnResult.put("message", "获取均价接口："+avgJsonResult.get("message"));
 					failResult.add(returnResult);
+					continue;
 				}
 				if(maxMinJsonResult.getIntValue("code") == 200){//接口调用成功，返回正确结果
 					JSONObject result = maxMinJsonResult.getJSONObject("result");//实际数据
