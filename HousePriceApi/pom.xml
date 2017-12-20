@@ -23,6 +23,9 @@
 		<spring.mongo>1.4.2.RELEASE</spring.mongo>
 		<mongo.driver>2.10.1</mongo.driver>
 		<poi.version>3.6</poi.version>
+		<active-spring.version>5.8.0</active-spring.version>
+		<active.version>5.7.0</active.version>
+		<mail.version>1.6.0</mail.version>
 	</properties>
 
 	<dependencies>
@@ -192,6 +195,39 @@
 		</dependency>
 		<!-- poi excel导入导出 end -->
 
+		<!-- activeMq start -->
+		<dependency>  
+            <groupId>org.apache.activemq</groupId>  
+            <artifactId>activemq-core</artifactId>  
+            <version>${active.version}</version>  
+        </dependency> 
+        <dependency>  
+            <groupId>org.springframework</groupId>  
+            <artifactId>spring-jms</artifactId>  
+            <version>${spring.version}</version>  
+        </dependency>  
+  
+        <dependency>  
+            <groupId>org.apache.activemq</groupId>  
+            <artifactId>activemq-spring</artifactId>  
+            <version>${active-spring.version}</version>  
+        </dependency>  
+		<!-- activeMq end -->
+		
+		<!-- email start-->
+		<dependency>
+   		 	<groupId>javax.mail</groupId>
+    		<artifactId>javax.mail-api</artifactId>
+    		<version>${mail.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.sun.mail/javax.mail -->
+		<dependency>
+    		<groupId>com.sun.mail</groupId>
+    		<artifactId>javax.mail</artifactId>
+    		<version>${mail.version}</version>
+		</dependency>
+		<!-- email end -->
+		
 	</dependencies>
 
 	<build>

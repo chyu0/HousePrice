@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
-import java.lang.reflect.ParameterizedType;
+import com.yunfang.utils.CommonUtils;
 
 /**
  * mongodb基类Dao
@@ -26,7 +26,7 @@ public class MongoDbTemplate<T> {
     protected MongoTemplate mongoTemplate;
 	
 	@SuppressWarnings("unchecked")
-	private Class<T> entityClass = (Class <T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]; 
+	private Class<T> entityClass = (Class<T>) CommonUtils.getSuperClassGenricType(getClass()); 
     
     /**
      * 根据条件查询集合

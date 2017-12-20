@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+
+	<!-- 1.配置connectionFactory -->
+	<bean id="jmsFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
+		<property name="connectionFactory">
+			<bean class="org.apache.activemq.ActiveMQConnectionFactory">
+				<property name="brokerURL">
+					<value>tcp://${active.host}:${active.port}</value>
+				</property>
+			</bean>
+		</property>
+		<property name="maxConnections" value="${active.maxConnects}"></property>
+	</bean>
+	
+	<!-- 2.定义消息目标 -->
+	<bean id="destination" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg index="0" value="${active.queueName}"></constructor-arg>
+	</bean>
+
+	<bean id="messageConverter" class="org.springframework.jms.support.converter.SimpleMessageConverter"></bean>
+
+	<!-- 3.配置Spring JMS Template -->
+	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<!-- 3.1 注入jmsFactory -->
+		<property name="connectionFactory" ref="jmsFactory"></property>
+		
+		<!-- 3.2 配置消息目标 -->
+		<property name="defaultDestination" ref="destination" />
+		
+		<!-- 3.3消息转换器 -->
+		<property name="messageConverter" ref="messageConverter"/>
+	</bean>
+</beans>

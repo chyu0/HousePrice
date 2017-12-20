@@ -39,7 +39,7 @@
 	
 	<aop:aspectj-autoproxy proxy-target-class="true"/>
 	
-	<context:component-scan base-package="com.mxt.price.controller,com.mxt.price.dao,com.mxt.price.service"/>
+	<context:component-scan base-package="com.mxt.price.controller,com.mxt.price.dao,com.mxt.price.service,com.mxt.price.utils"/>
 	
     <!-- exception related -->
     <!-- all exception handler will be registered by DispatcherServlet default (detectAllHandlerExceptionResolvers=true) -->

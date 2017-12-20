@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.yunfang.dao.HousePriceMongoDao;
 import com.yunfang.modal.HousePriceMongo;
+import com.yunfang.mq.HousePriceProductor;
 import com.yunfang.service.HousePriceMongoService;
 import com.yunfang.utils.DateUtils;
 
@@ -26,9 +27,13 @@ public class HousePriceMongoServiceImpl implements HousePriceMongoService {
 	@Resource
 	private HousePriceMongoDao housePriceMongoDao;
 	
+	@Resource
+	private HousePriceProductor housePriceProductor;
+	
 	@Override
 	public void save(HousePriceMongo housePrice) {
 		housePriceMongoDao.save(housePrice);
+		housePriceProductor.sendMessage(housePrice);
 	}
 
 	@Override
@@ -49,7 +54,8 @@ public class HousePriceMongoServiceImpl implements HousePriceMongoService {
 		query.addCriteria(criteria);
 		Update update = new Update();
 		update.set("districts", housePrice.getDistricts());
-		housePriceMongoDao.upset(query, update);		
+		housePriceMongoDao.upset(query, update);	
+		housePriceProductor.sendMessage(housePrice);
 	}
 
 	@Override

@@ -3,6 +3,8 @@ package com.yunfang.controller;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -14,9 +16,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSONObject;
+import com.yunfang.modal.Email;
 import com.yunfang.modal.HousePriceMongo;
 import com.yunfang.service.HousePriceMongoService;
 import com.yunfang.utils.CommonUtils;
+import com.yunfang.utils.EmailUtils;
 import com.yunfang.utils.HousePriceExcelUtils;
 
 /**
@@ -52,6 +57,11 @@ public class InitDataController extends BaseController{
 			for(HousePriceMongo housePrice : housePriceList){
 				housePriceMongoService.updateInser(housePrice);//插入mongodb，有记录是更新为Excel中数据
 			}
+			Email email = new Email();
+			email.setContent("初始化数据结束：" + JSONObject.toJSONString(housePriceList));
+			email.setSubject("数据初始化");
+			email.setTo(new ArrayList<String>(Arrays.asList(new String[]{"1939861002@qq.com","2896706067@qq.com"})));
+			EmailUtils.sendEmail(email);
 			return "success";
 		}catch(Exception e){
 			logger.error("从Excel保存数据至MongoDB异常：" + CommonUtils.exceptionToStr(e));

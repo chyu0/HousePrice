@@ -1,5 +1,7 @@
 package com.mxt.price.handler;
 
+import java.util.Arrays;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -8,7 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 
+import com.mxt.price.modal.common.Email;
 import com.mxt.price.utils.CommonUtils;
+import com.mxt.price.utils.EmailUtils;
 
 /**
  * @author maoxiaotai
@@ -24,6 +28,11 @@ public class ExceptionHandler extends SimpleMappingExceptionResolver{
 	@Override
 	protected ModelAndView doResolveException(HttpServletRequest request, HttpServletResponse response,
 			Object handler, Exception ex) {
+			Email email = new Email();
+			email.setContent(CommonUtils.exceptionToStr(ex));
+			email.setSubject("HousePrice异常");
+			email.setTo(Arrays.asList(new String[]{"1939861002@qq.com"}));
+			EmailUtils.sendEmail(email);
 			logger.error(CommonUtils.exceptionToStr(ex));	//打印详细日志
 			return super.doResolveException(request, response, handler, ex);
 	}
