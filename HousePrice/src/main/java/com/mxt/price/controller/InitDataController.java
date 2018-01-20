@@ -64,7 +64,7 @@ public class InitDataController extends BaseController{
 	public Map<String,Object> initDataFromHttp(String startDate , String endDate , String province , String city){
 		StringBuffer str = new StringBuffer();
 		//url组装，调用云房接口，形如http://open.fangjia.com/property/transaction?time=1509610841808&serviceCode=S0079&token=***&province_name=%E6%B9%96%E5%8C%97&city_name=%E6%AD%A6%E6%B1%89&date=2016-10
-		str.append("http://open.fangjia.com/property/transaction?time=");
+		str.append("http://139.199.207.230:8081/property/transaction?time=");
 		Long timestamp = Calendar.getInstance().getTimeInMillis();
 		str.append(timestamp).append("&token=").append(assign);
 		str.append("&province_name=").append(province).append("&city_name=").append(city);
