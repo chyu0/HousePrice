@@ -33,7 +33,7 @@ public class HousePriceMongoServiceImpl implements HousePriceMongoService {
 	@Override
 	public void save(HousePriceMongo housePrice) {
 		housePriceMongoDao.save(housePrice);
-		housePriceProductor.sendMessage(housePrice);
+		//housePriceProductor.sendMessage(housePrice);
 	}
 
 	@Override
@@ -49,13 +49,13 @@ public class HousePriceMongoServiceImpl implements HousePriceMongoService {
 	@Override
 	public void updateInser(HousePriceMongo housePrice) {
 		//通过province，city，date查询记录
-		Criteria criteria = Criteria.where("province").is(housePrice.getProvince()).and("city").is(housePrice.getCity()).and("date").in(housePrice.getDate());
+		Criteria criteria = Criteria.where("province").is(housePrice.getProvince()).and("city").is(housePrice.getCity()).and("date").is(housePrice.getDate());
 		Query query = new Query();
 		query.addCriteria(criteria);
 		Update update = new Update();
 		update.set("districts", housePrice.getDistricts());
 		housePriceMongoDao.upset(query, update);	
-		housePriceProductor.sendMessage(housePrice);
+		//housePriceProductor.sendMessage(housePrice);
 	}
 
 	@Override

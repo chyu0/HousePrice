@@ -86,7 +86,7 @@ public class PriceController extends BaseController{
 		String methodName = service.getMethodName();
 		
 		try{	
-			Object objService = applicationContext.getBean(serviceBean);
+			Object objService = MethodUtils.getTarget(applicationContext.getBean(serviceBean));
 			Class<?> clazz = objService.getClass();
 			
 			@SuppressWarnings("unchecked")

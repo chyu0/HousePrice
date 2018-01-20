@@ -8,6 +8,8 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.yunfang.enums.ResultCode;
@@ -18,6 +20,8 @@ import com.yunfang.service.HousePriceMongoService;
 
 @Service("housePriceApiService")
 public class HousePriceApiServiceImpl implements HousePriceApiService {
+	
+	private static Logger logger = LoggerFactory.getLogger(HousePriceApiServiceImpl.class);
 	
 	@Resource
 	private HousePriceMongoService housePriceMongoService;
@@ -34,9 +38,11 @@ public class HousePriceApiServiceImpl implements HousePriceApiService {
 			
 			HousePriceMongo mongo = housePriceMongoService.findHousePricesByDateAndCity(date, province_name, city_name);
 			
+			logger.info("date:" + date + "province_name:" + province_name + "city_name:" + city_name + "mongo:" + mongo);
+			
 			if(mongo == null || mongo.getDistricts() == null || mongo.getDistricts().size() <= 0){
 				map.put("code", ResultCode.NULLRESULT.getCode());
-				map.put("msg", "为获取到相关数据");
+				map.put("msg", "未获取到相关数据");
 				return map;
 			}
 			

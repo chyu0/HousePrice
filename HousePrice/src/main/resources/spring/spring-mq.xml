@@ -39,14 +39,14 @@
 	</bean>
 	
 	<!-- 消息监听器 -->  
-	<bean id="consumerMessageListener" class="com.mxt.price.handler.ConsumerListener"> 
-		<property name="messageConverter" ref="messageConverter"/>
-	</bean> 
+	<!--<bean id="consumerMessageListener" class="com.mxt.price.handler.ConsumerListener"> 
+		<property name="messageConverter" ref="messageConverter"/> 
+	</bean> -->
 	<!-- 消息监听容器 -->  
-	<bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">  
+	<!--<bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">  
         <property name="connectionFactory" ref="jmsFactory" />  
         <property name="destinationName" value="${active.queueName}" />  
         <property name="messageListener" ref="consumerMessageListener" />
         <property name="sessionAcknowledgeMode" value="1"/>
-	</bean>
+	</bean>-->
 </beans>
