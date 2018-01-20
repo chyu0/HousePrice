@@ -29,8 +29,17 @@
     
     <mongo:db-factory dbname="${dbName}" mongo-ref="mongo" />
     
+    <!-- 配置mongodb的用户及密码 -->
+    <bean id="userCredentials" class="org.springframework.data.authentication.UserCredentials">
+  		<constructor-arg   name="username" value="${mongo.username}" /> 
+  		<constructor-arg   name="password" value="${mongo.password}" /> 
+    </bean>
+    
     <bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
-        <constructor-arg name="mongoDbFactory" ref="mongoDbFactory"/>
+        <!-- <constructor-arg name="mongoDbFactory" ref="mongoDbFactory"/> -->
+        <constructor-arg name="mongo" ref="mongo" />
+        <constructor-arg name="databaseName" value="${dbName}" />
+        <constructor-arg name="userCredentials" ref="userCredentials"/>
     </bean>
     
 </beans>

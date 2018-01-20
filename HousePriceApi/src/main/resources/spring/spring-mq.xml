@@ -12,7 +12,7 @@
 		<property name="connectionFactory">
 			<bean class="org.apache.activemq.ActiveMQConnectionFactory">
 				<property name="brokerURL">
-					<value>tcp://${active.host}:${active.port}</value>
+					<value>tcp://${active.host}:${active.port}?maxInactivityDurationInitalDelay=30000</value>
 				</property>
 			</bean>
 		</property>
